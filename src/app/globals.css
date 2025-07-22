@@ -1,26 +1,265 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --foreground-rgb: 51, 58, 45;
+  --background-rgb: 239, 228, 200;
+  
+  /* Animation variables */
+  --transition-slow: 0.5s;
+  --transition-medium: 0.3s;
+  --transition-fast: 0.15s;
+  
+  /* Custom colors */
+  --color-red: 165, 52, 16;
+  --color-green: 51, 58, 45;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb));
+  font-family: var(--font-opensans), sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-akko), sans-serif;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Fix untuk gambar yang tidak muncul */
+.relative img {
+  position: relative !important;
+  height: auto !important;
+}
+
+/* Pastikan gambar dalam container relatif mengisi seluruh area */
+.relative > img {
+  width: 100%;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+/* Container responsif */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Modern button styles */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 9999px;
+  overflow: hidden;
+  transition: all var(--transition-medium) ease;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.2);
+  transition: width var(--transition-medium) ease;
+  z-index: -1;
+}
+
+.btn:hover::before {
+  width: 100%;
+}
+
+.btn-primary {
+  background-color: rgb(var(--color-red));
+  color: #fff;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid rgb(var(--color-green));
+  color: rgb(var(--color-green));
+}
+
+.btn-secondary:hover {
+  background-color: rgba(51, 58, 45, 0.1);
+}
+
+/* Hover effect for cards */
+.hover-card {
+  transition: transform var(--transition-medium) ease, box-shadow var(--transition-medium) ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Glow effect */
+.glow {
+  position: relative;
+}
+
+.glow::after {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  right: -15px;
+  bottom: -15px;
+  background: radial-gradient(circle, rgba(var(--color-red), 0.2) 0%, rgba(var(--color-red), 0) 70%);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity var(--transition-medium) ease;
+}
+
+.glow:hover::after {
+  opacity: 1;
+}
+
+/* Text gradient */
+.text-gradient {
+  background: linear-gradient(90deg, #A53410 0%, #C64B20 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+/* Stagger children animation */
+.stagger-children > * {
+  opacity: 0;
+}
+
+.stagger-children.in-view > *:nth-child(1) { animation: fadeIn 0.5s ease forwards 0.1s; }
+.stagger-children.in-view > *:nth-child(2) { animation: fadeIn 0.5s ease forwards 0.2s; }
+.stagger-children.in-view > *:nth-child(3) { animation: fadeIn 0.5s ease forwards 0.3s; }
+.stagger-children.in-view > *:nth-child(4) { animation: fadeIn 0.5s ease forwards 0.4s; }
+.stagger-children.in-view > *:nth-child(5) { animation: fadeIn 0.5s ease forwards 0.5s; }
+.stagger-children.in-view > *:nth-child(6) { animation: fadeIn 0.5s ease forwards 0.6s; }
+
+/* Blur backdrop for modals and dropdowns */
+.backdrop-blur {
+  backdrop-filter: blur(8px);
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(234, 212, 156, 0.3);
+}
+
+/* Parallax effect */
+.parallax {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Ripple effect animation */
+.ripple-effect {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple 0.6s linear;
+  background-color: rgba(51, 58, 45, 0.2);
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* Animated underline */
+.animated-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.animated-underline::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: rgb(var(--color-red));
+  transition: width var(--transition-medium) ease;
+}
+
+.animated-underline:hover::after {
+  width: 100%;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.floating {
+  animation: float 6s ease-in-out infinite;
 }
