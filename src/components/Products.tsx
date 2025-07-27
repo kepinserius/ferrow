@@ -1,71 +1,204 @@
-'use client';
+"use client"
 
-import { motion, useInView } from 'framer-motion';
-import { useRef, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { FaShoppingCart, FaInfoCircle, FaStar } from 'react-icons/fa';
+import { motion, useInView } from "framer-motion"
+import { useRef, useState, useEffect } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { FaShoppingCart, FaInfoCircle, FaStar } from "react-icons/fa"
+import { supabase } from "@/lib/supabaseClient"
 
-const products = [
-  {
-    id: 1,
-    name: "Wild Wolf Formula",
-    description: "Makanan anjing premium dengan daging rusa dan bison, kaya akan protein dan nutrisi esensial.",
-    image: "/images/DRIED FOOD/ORI-DOG-FRONT.png",
-    category: "Anjing",
-    price: 350000,
-    rating: 4.8
-  },
-  {
-    id: 2,
-    name: "Forest Hunter",
-    description: "Formula kucing dengan salmon liar dan daging unggas bebas kandang, untuk bulu yang sehat dan berkilau.",
-    image: "/images/DRIED FOOD/ORI-CAT-FRONT.png",
-    category: "Kucing",
-    price: 320000,
-    rating: 4.7
-  },
-  {
-    id: 3,
-    name: "Prairie Guardian",
-    description: "Nutrisi lengkap untuk anjing aktif dengan daging kambing dan rusa, diperkaya dengan sayuran organik.",
-    image: "/images/DRIED FOOD/MIX-DOG-FRONT.png",
-    category: "Anjing",
-    price: 380000,
-    rating: 4.9
-  },
-  {
-    id: 4,
-    name: "Mountain Prowler",
-    description: "Formula kucing dengan daging kelinci dan bebek, ideal untuk sistem pencernaan yang sensitif.",
-    image: "/images/DRIED FOOD/MIX-CAT-FRONT.png",
-    category: "Kucing",
-    price: 340000,
-    rating: 4.6
-  }
-];
+interface Product {
+  id: number
+  name: string
+  code: string
+  price: number
+  stock: number
+  image_url?: string
+  category: string
+  is_active: boolean
+  created_at?: string
+  description?: string
+  ingredients?: string
+  health_benefits?: string
+  protein?: number
+  fat?: number
+  fiber?: number
+  moisture?: number
+  ash?: number
+  calcium?: number
+  phosphorus?: number
+  rating?: number
+}
 
 const Products = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: false, amount: 0.2 });
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: false, amount: 0.2 })
+  const [hoveredId, setHoveredId] = useState<number | null>(null)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchProducts()
+
+    // Real-time subscription for products
+    const channel = supabase
+      .channel("realtime-products")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "products",
+        },
+        () => {
+          fetchProducts()
+        },
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select(`
+        id,
+        name,
+        code,
+        price,
+        stock,
+        image_url,
+        category,
+        is_active,
+        created_at,
+        description,
+        ingredients,
+        health_benefits,
+        protein,
+        fat,
+        fiber,
+        moisture,
+        ash,
+        calcium,
+        phosphorus,
+        rating
+      `)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(8)
+
+      if (error) throw error
+
+      // Add default values for missing fields
+      const productsWithDefaults =
+        data?.map((product) => ({
+          ...product,
+          description:
+            product.description ||
+            `Premium ${product.category.toLowerCase()} product with high-quality ingredients for optimal nutrition.`,
+          rating: product.rating || 4.5 + Math.random() * 0.4, // Use existing rating or generate random one
+        })) || []
+
+      setProducts(productsWithDefaults)
+    } catch (error) {
+      console.error("Error fetching products:", error)
+      setError("Failed to load products")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("id-ID").format(price)
+  }
+
+  const getCategoryInIndonesian = (category: string) => {
+    const categoryMap: Record<string, string> = {
+      "Food & Treats": "Makanan & Snack",
+      Toys: "Mainan",
+      Accessories: "Aksesoris",
+      "Health & Care": "Kesehatan",
+      Grooming: "Perawatan",
+      Bedding: "Tempat Tidur",
+      Training: "Pelatihan",
+      Other: "Lainnya",
+    }
+    return categoryMap[category] || category
+  }
+
+  // Loading skeleton
+  const LoadingSkeleton = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      {[...Array(4)].map((_, index) => (
+        <div
+          key={index}
+          className="glass rounded-2xl overflow-hidden shadow-lg h-full border border-ferrow-yellow-400/30"
+        >
+          <div className="relative h-64 bg-gray-200 animate-pulse"></div>
+          <div className="p-6 space-y-4">
+            <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+            <div className="flex justify-between items-center">
+              <div className="h-6 bg-gray-200 rounded animate-pulse w-24"></div>
+              <div className="flex gap-2">
+                <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+                <div className="w-10 h-10 bg-gray-200 rounded-full animate-pulse"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+
+  // Error state
+  const ErrorState = () => (
+    <div className="text-center py-12">
+      <div className="text-ferrow-red-500 text-6xl mb-4">⚠️</div>
+      <h3 className="text-xl font-bold text-ferrow-green-800 mb-2">Gagal Memuat Produk</h3>
+      <p className="text-ferrow-green-800/70 mb-4">{error}</p>
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={fetchProducts}
+        className="btn btn-primary"
+      >
+        Coba Lagi
+      </motion.button>
+    </div>
+  )
+
+  // Empty state
+  const EmptyState = () => (
+    <div className="text-center py-12">
+      <div className="text-ferrow-yellow-400 text-6xl mb-4">📦</div>
+      <h3 className="text-xl font-bold text-ferrow-green-800 mb-2">Belum Ada Produk</h3>
+      <p className="text-ferrow-green-800/70">Produk akan segera tersedia. Silakan kembali lagi nanti.</p>
+    </div>
+  )
 
   return (
     <section id="products" className="py-24 bg-ferrow-cream-400 relative overflow-hidden">
       {/* Background elements */}
-      <motion.div 
+      <motion.div
         className="absolute top-0 right-0 w-96 h-96 rounded-full bg-ferrow-yellow-400/10 blur-3xl"
-        animate={{ 
+        animate={{
           scale: [1, 1.2, 1],
-          opacity: [0.2, 0.3, 0.2]
+          opacity: [0.2, 0.3, 0.2],
         }}
-        transition={{ 
+        transition={{
           duration: 8,
-          repeat: Infinity,
-          repeatType: "reverse"
+          repeat: Number.POSITIVE_INFINITY,
+          repeatType: "reverse",
         }}
       />
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16">
           <motion.span
@@ -77,8 +210,8 @@ const Products = () => {
           >
             PRODUK PREMIUM
           </motion.span>
-          
-          <motion.h2 
+
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -87,8 +220,8 @@ const Products = () => {
           >
             Produk <span className="text-gradient">Unggulan</span> Kami
           </motion.h2>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -100,108 +233,181 @@ const Products = () => {
         </div>
 
         {/* Product Grid - Modern Design */}
-        <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 50 }}
-              animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-              transition={{ duration: 0.5, delay: 0.1 * index }}
-              className="group glass rounded-2xl overflow-hidden shadow-lg hover-card h-full border border-ferrow-yellow-400/30"
-              onMouseEnter={() => setHoveredId(product.id)}
-              onMouseLeave={() => setHoveredId(null)}
-            >
-              <Link href={`/products/${product.id}`} className="block">
-                <div className="relative h-64 overflow-hidden">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
-                    priority={index < 2}
-                  />
-                  
-                  {/* Category badge */}
-                  <motion.div 
-                    className="absolute top-4 left-4 glass text-ferrow-green-800 text-sm font-bold px-3 py-1 rounded-full border border-ferrow-yellow-400/30"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    {product.category}
-                  </motion.div>
-                  
-                  {/* Rating */}
-                  <div className="absolute bottom-4 left-4 flex items-center bg-white/60 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <FaStar className="text-ferrow-red-500 mr-1" />
-                    <span className="text-ferrow-green-800 text-sm">{product.rating}</span>
-                  </div>
-                </div>
-              </Link>
-              
-              <div className="p-6">
-                <Link href={`/products/${product.id}`}>
-                  <h3 className="text-xl font-bold text-ferrow-green-800 mb-2 group-hover:text-ferrow-red-500 transition-colors">
-                    {product.name}
-                  </h3>
-                </Link>
-                <p className="text-ferrow-green-800/70 mb-4 line-clamp-2">{product.description}</p>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-lg font-bold text-gradient">
-                    Rp {product.price.toLocaleString('id-ID')}
-                  </span>
-                  
-                  <div className="flex gap-2">
+        <div ref={ref}>
+          {loading ? (
+            <LoadingSkeleton />
+          ) : error ? (
+            <ErrorState />
+          ) : products.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {products.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 50 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                  transition={{ duration: 0.5, delay: 0.1 * index }}
+                  className="group glass rounded-2xl overflow-hidden shadow-lg hover-card h-full border border-ferrow-yellow-400/30"
+                  onMouseEnter={() => setHoveredId(product.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                >
+                  <Link href={`/products/${product.id}`} className="block">
+                    <div className="relative h-64 overflow-hidden">
+                      <Image
+                        src={product.image_url || "/placeholder.svg?height=256&width=256&query=pet food package"}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
+                        priority={index < 2}
+                      />
+
+                      {/* Category badge */}
+                      <motion.div
+                        className="absolute top-4 left-4 glass text-ferrow-green-800 text-sm font-bold px-3 py-1 rounded-full border border-ferrow-yellow-400/30"
+                        whileHover={{ scale: 1.05 }}
+                      >
+                        {getCategoryInIndonesian(product.category)}
+                      </motion.div>
+
+                      {/* Product Code */}
+                      <div className="absolute top-4 right-4 glass text-ferrow-green-800 text-xs font-mono px-2 py-1 rounded border border-ferrow-yellow-400/30">
+                        {product.code}
+                      </div>
+
+                      {/* Rating */}
+                      <div className="absolute bottom-4 left-4 flex items-center bg-white/60 backdrop-blur-sm px-2 py-1 rounded-full">
+                        <FaStar className="text-ferrow-red-500 mr-1" />
+                        <span className="text-ferrow-green-800 text-sm">{product.rating?.toFixed(1)}</span>
+                      </div>
+
+                      {/* Stock indicator */}
+                      {product.stock < 10 && product.stock > 0 && (
+                        <div className="absolute bottom-4 right-4 bg-ferrow-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          Stok Terbatas
+                        </div>
+                      )}
+
+                      {product.stock === 0 && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <span className="text-white font-bold text-lg">Stok Habis</span>
+                        </div>
+                      )}
+
+                      {/* Nutrition info overlay on hover */}
+                      {hoveredId === product.id && product.protein && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="absolute inset-0 bg-black/80 flex items-center justify-center p-4"
+                        >
+                          <div className="text-white text-center">
+                            <h4 className="font-bold mb-2 text-sm">Nutrition Facts</h4>
+                            <div className="grid grid-cols-2 gap-1 text-xs">
+                              {product.protein && <div>Protein: {product.protein}%</div>}
+                              {product.fat && <div>Fat: {product.fat}%</div>}
+                              {product.fiber && <div>Fiber: {product.fiber}%</div>}
+                              {product.moisture && <div>Moisture: {product.moisture}%</div>}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+                  </Link>
+
+                  <div className="p-6">
                     <Link href={`/products/${product.id}`}>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-10 h-10 rounded-full glass flex items-center justify-center border border-ferrow-yellow-400/30 text-ferrow-green-800 hover:text-ferrow-red-500 transition-colors"
-                        aria-label="Lihat detail produk"
-                      >
-                        <FaInfoCircle />
-                      </motion.button>
+                      <h3 className="text-xl font-bold text-ferrow-green-800 mb-2 group-hover:text-ferrow-red-500 transition-colors">
+                        {product.name}
+                      </h3>
                     </Link>
-                    
-                    <Link href="/cart">
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-10 h-10 rounded-full bg-ferrow-green-800 flex items-center justify-center text-ferrow-yellow-400 hover:bg-ferrow-green-700 transition-colors"
-                        aria-label="Lihat keranjang"
-                      >
-                        <FaShoppingCart />
-                      </motion.button>
-                    </Link>
+
+                    <p className="text-ferrow-green-800/70 mb-3 line-clamp-2 text-sm">{product.description}</p>
+
+                    {/* Health Benefits Preview */}
+                    {product.health_benefits && (
+                      <p className="text-ferrow-green-800/60 mb-3 line-clamp-1 text-xs italic">
+                        💚 {product.health_benefits.split(",")[0]}...
+                      </p>
+                    )}
+
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="text-lg font-bold text-gradient">Rp {formatPrice(product.price)}</span>
+                        {product.protein && (
+                          <div className="text-xs text-ferrow-green-800/60 mt-1">Protein: {product.protein}%</div>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Link href={`/products/${product.id}`}>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="w-10 h-10 rounded-full glass flex items-center justify-center border border-ferrow-yellow-400/30 text-ferrow-green-800 hover:text-ferrow-red-500 transition-colors"
+                            aria-label="Lihat detail produk"
+                          >
+                            <FaInfoCircle />
+                          </motion.button>
+                        </Link>
+
+                        <Link href="/cart">
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            disabled={product.stock === 0}
+                            className="w-10 h-10 rounded-full bg-ferrow-green-800 flex items-center justify-center text-ferrow-yellow-400 hover:bg-ferrow-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            aria-label="Lihat keranjang"
+                          >
+                            <FaShoppingCart />
+                          </motion.button>
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Stock info */}
+                    <div className="mt-2 text-xs text-ferrow-green-800/60">
+                      {product.stock > 10
+                        ? "Stok tersedia"
+                        : product.stock > 0
+                          ? `Tersisa ${product.stock} item`
+                          : "Stok habis"}
+                    </div>
+
+                    {/* Ingredients preview */}
+                    {product.ingredients && (
+                      <div className="mt-2 pt-2 border-t border-ferrow-yellow-400/20">
+                        <p className="text-xs text-ferrow-green-800/50 line-clamp-1">
+                          <span className="font-medium">Ingredients:</span> {product.ingredients}
+                        </p>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </div>
-              
-              {/* Hover overlay animation */}
-              <motion.div 
-                className="absolute inset-0 bg-gradient-to-t from-ferrow-cream-400/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: hoveredId === product.id ? 0.3 : 0 }}
-                transition={{ duration: 0.3 }}
-              />
-            </motion.div>
-          ))}
+
+                  {/* Hover overlay animation */}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-t from-ferrow-cream-400/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: hoveredId === product.id && !product.protein ? 0.3 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="text-center mt-12">
           <Link href="/products">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="btn btn-primary"
-            >
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="btn btn-primary">
               Lihat Semua Produk
             </motion.button>
           </Link>
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default Products; 
+export default Products

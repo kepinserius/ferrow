@@ -1,164 +1,107 @@
-'use client';
+"use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
-// Define cart item type
-export interface CartItem {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  quantity: number;
-  image: string;
-  category: string;
+interface CartItem {
+  id: string // This should be UUID string
+  name: string
+  price: number
+  image: string
+  description: string
+  category: string
+  quantity: number
+  code?: string // Add optional code field
 }
 
-// Define cart context type
 interface CartContextType {
-  cartItems: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
-  clearCart: () => void;
-  cartCount: number;
-  subtotal: number;
-  shipping: number;
-  total: number;
+  cartItems: CartItem[]
+  addToCart: (item: Omit<CartItem, "quantity">) => void
+  removeFromCart: (id: string) => void
+  updateQuantity: (id: string, quantity: number) => void
+  clearCart: () => void
+  subtotal: number
+  shipping: number
+  total: number
 }
 
-// Create context with default values
-const CartContext = createContext<CartContextType>({
-  cartItems: [],
-  addToCart: () => {},
-  removeFromCart: () => {},
-  updateQuantity: () => {},
-  clearCart: () => {},
-  cartCount: 0,
-  subtotal: 0,
-  shipping: 0,
-  total: 0
-});
-
-// Sample initial cart items (for demo purposes)
-const sampleCartItems: CartItem[] = [
-  {
-    id: 1,
-    name: "Wild Wolf Formula",
-    description: "Makanan anjing premium dengan daging rusa dan bison",
-    price: 350000,
-    quantity: 1,
-    image: "/images/product-1.jpg",
-    category: "Anjing"
-  },
-  {
-    id: 2,
-    name: "Forest Hunter",
-    description: "Formula kucing dengan salmon liar dan daging unggas bebas kandang",
-    price: 320000,
-    quantity: 2,
-    image: "/images/product-2.jpg",
-    category: "Kucing"
-  }
-];
+const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isInitialized, setIsInitialized] = useState(false);
-  
-  // Load cart from localStorage on component mount
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
+
+  // Load cart from localStorage on mount
   useEffect(() => {
-    const storedCart = localStorage.getItem('ferrow-cart');
-    if (storedCart) {
+    const savedCart = localStorage.getItem("ferrow-cart")
+    if (savedCart) {
       try {
-        const parsedCart = JSON.parse(storedCart);
-        setCartItems(parsedCart);
+        setCartItems(JSON.parse(savedCart))
       } catch (error) {
-        console.error('Failed to parse cart from localStorage:', error);
-        setCartItems([]);
+        console.error("Error loading cart from localStorage:", error)
+        localStorage.removeItem("ferrow-cart")
       }
-    } else {
-      // Use sample cart items for demo (remove this in production)
-      setCartItems(sampleCartItems);
     }
-    setIsInitialized(true);
-  }, []);
-  
+  }, [])
+
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem('ferrow-cart', JSON.stringify(cartItems));
-    }
-  }, [cartItems, isInitialized]);
-  
-  // Calculate cart count
-  const cartCount = cartItems.reduce((count, item) => count + item.quantity, 0);
-  
-  // Calculate subtotal
-  const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  
-  // Calculate shipping (free shipping over 500k)
-  const shipping = subtotal > 500000 ? 0 : subtotal > 0 ? 25000 : 0;
-  
-  // Calculate total
-  const total = subtotal + shipping;
-  
-  // Add item to cart
-  const addToCart = (item: CartItem) => {
-    setCartItems(prevItems => {
-      // Check if item already exists in cart
-      const existingItemIndex = prevItems.findIndex(cartItem => cartItem.id === item.id);
-      
-      if (existingItemIndex >= 0) {
-        // Item exists, update quantity
-        const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex].quantity += item.quantity;
-        return updatedItems;
-      } else {
-        // Item doesn't exist, add new item
-        return [...prevItems, item];
+    localStorage.setItem("ferrow-cart", JSON.stringify(cartItems))
+  }, [cartItems])
+
+  const addToCart = (item: Omit<CartItem, "quantity">) => {
+    setCartItems((prev) => {
+      const existingItem = prev.find((cartItem) => cartItem.id === item.id)
+      if (existingItem) {
+        return prev.map((cartItem) =>
+          cartItem.id === item.id ? { ...cartItem, quantity: cartItem.quantity + 1 } : cartItem,
+        )
       }
-    });
-  };
-  
-  // Remove item from cart
-  const removeFromCart = (id: number) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-  };
-  
-  // Update item quantity
-  const updateQuantity = (id: number, quantity: number) => {
-    if (quantity < 1) return;
-    
-    setCartItems(prevItems => 
-      prevItems.map(item => 
-        item.id === id ? { ...item, quantity } : item
-      )
-    );
-  };
-  
-  // Clear cart
+      return [...prev, { ...item, quantity: 1 }]
+    })
+  }
+
+  const removeFromCart = (id: string) => {
+    setCartItems((prev) => prev.filter((item) => item.id !== id))
+  }
+
+  const updateQuantity = (id: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(id)
+      return
+    }
+    setCartItems((prev) => prev.map((item) => (item.id === id ? { ...item, quantity } : item)))
+  }
+
   const clearCart = () => {
-    setCartItems([]);
-  };
-  
+    setCartItems([])
+    localStorage.removeItem("ferrow-cart")
+  }
+
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const shipping = subtotal > 100000 ? 0 : 15000 // Free shipping over 100k
+  const total = subtotal + shipping
+
   return (
-    <CartContext.Provider value={{
-      cartItems,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart,
-      cartCount,
-      subtotal,
-      shipping,
-      total
-    }}>
+    <CartContext.Provider
+      value={{
+        cartItems,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        subtotal,
+        shipping,
+        total,
+      }}
+    >
       {children}
     </CartContext.Provider>
-  );
+  )
 }
 
-// Custom hook to use cart context
 export function useCart() {
-  return useContext(CartContext);
-} 
+  const context = useContext(CartContext)
+  if (context === undefined) {
+    throw new Error("useCart must be used within a CartProvider")
+  }
+  return context
+}
