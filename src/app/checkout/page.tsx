@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
@@ -37,6 +36,7 @@ export default function Checkout() {
   const { cartItems, subtotal, clearCart } = useCart()
   const { user, loading: authLoading } = useUserAuth()
   const router = useRouter()
+
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
@@ -116,53 +116,42 @@ export default function Checkout() {
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {}
-
     if (!customerData.name.trim()) {
       newErrors.name = "Nama lengkap wajib diisi"
     }
-
     if (!customerData.email.trim()) {
       newErrors.email = "Email wajib diisi"
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerData.email)) {
       newErrors.email = "Format email tidak valid"
     }
-
     if (!customerData.phone.trim()) {
       newErrors.phone = "Nomor telepon wajib diisi"
     } else if (!/^[0-9+\-\s()]+$/.test(customerData.phone)) {
       newErrors.phone = "Format nomor telepon tidak valid"
     }
-
     if (!customerData.address.trim()) {
       newErrors.address = "Alamat lengkap wajib diisi"
     }
-
     if (!customerData.city.trim()) {
       newErrors.city = "Kota wajib diisi"
     }
-
     if (!customerData.province.trim()) {
       newErrors.province = "Provinsi wajib diisi"
     }
-
     if (!customerData.postalCode.trim()) {
       newErrors.postalCode = "Kode pos wajib diisi"
     } else if (!/^[0-9]{5}$/.test(customerData.postalCode)) {
       newErrors.postalCode = "Kode pos harus 5 digit angka"
     }
-
     if (customerData.cityId && !/^[0-9]+$/.test(customerData.cityId)) {
       newErrors.cityId = "ID Kota harus berupa angka"
     }
-
     if (customerData.provinceId && !/^[0-9]+$/.test(customerData.provinceId)) {
       newErrors.provinceId = "ID Provinsi harus berupa angka"
     }
-
     if (!selectedShipping) {
       newErrors.shipping = "Pilih metode pengiriman"
     }
-
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -173,7 +162,6 @@ export default function Checkout() {
       ...prev,
       [name]: value,
     }))
-
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -194,18 +182,14 @@ export default function Checkout() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!user) {
       setIsLoginModalOpen(true)
       return
     }
-
     if (!validateForm()) {
       return
     }
-
     setIsLoading(true)
-
     try {
       // Create order with user ID
       const orderResponse = await fetch("/api/orders", {
@@ -238,7 +222,6 @@ export default function Checkout() {
       if (!orderResponse.ok) {
         const errorText = await orderResponse.text()
         console.error("Order API Error Response:", errorText)
-
         let errorMessage = "Failed to create order"
         try {
           const errorData = JSON.parse(errorText)
@@ -246,7 +229,6 @@ export default function Checkout() {
         } catch (parseError) {
           errorMessage = `Server error: ${orderResponse.status} ${orderResponse.statusText}`
         }
-
         throw new Error(errorMessage)
       }
 
@@ -258,7 +240,6 @@ export default function Checkout() {
         console.error("Failed to parse order response")
         throw new Error("Invalid response from order API")
       }
-
       console.log("Order created successfully:", orderData)
 
       // Create payment transaction
@@ -275,7 +256,6 @@ export default function Checkout() {
       if (!paymentResponse.ok) {
         const errorText = await paymentResponse.text()
         console.error("Payment API Error Response:", errorText)
-
         let errorMessage = "Failed to create payment transaction"
         try {
           const errorData = JSON.parse(errorText)
@@ -283,7 +263,6 @@ export default function Checkout() {
         } catch (parseError) {
           errorMessage = `Payment server error: ${paymentResponse.status} ${paymentResponse.statusText}`
         }
-
         throw new Error(errorMessage)
       }
 
@@ -296,7 +275,6 @@ export default function Checkout() {
         console.error("Failed to parse payment response")
         throw new Error("Invalid response from payment API")
       }
-
       console.log("Payment data:", paymentData)
 
       if (!paymentData.redirect_url) {
@@ -373,7 +351,6 @@ export default function Checkout() {
                 </motion.button>
               </Link>
             </div>
-
             {!user && (
               <motion.div
                 className="glass rounded-xl border border-ferrow-yellow-400/30 p-6 mb-6 text-center"
@@ -394,7 +371,6 @@ export default function Checkout() {
                 </motion.button>
               </motion.div>
             )}
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Checkout Form */}
               <div className="lg:col-span-2">
@@ -410,7 +386,6 @@ export default function Checkout() {
                       <FaUser className="text-ferrow-green-800" />
                       <span>Informasi Pelanggan</span>
                     </h2>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-2">Nama Lengkap *</label>
@@ -466,7 +441,6 @@ export default function Checkout() {
                       </div>
                     </div>
                   </motion.div>
-
                   {/* Shipping Information */}
                   <motion.div
                     className="glass rounded-xl border border-ferrow-yellow-400/30 p-6 mb-6"
@@ -478,7 +452,6 @@ export default function Checkout() {
                       <FaMapMarkerAlt className="text-ferrow-green-800" />
                       <span>Alamat Pengiriman</span>
                     </h2>
-
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium mb-2">Alamat Lengkap *</label>
@@ -593,7 +566,6 @@ export default function Checkout() {
                       </div>
                     </div>
                   </motion.div>
-
                   {/* Shipping Options */}
                   <motion.div
                     className="glass rounded-xl border border-ferrow-yellow-400/30 p-6 mb-6"
@@ -605,7 +577,6 @@ export default function Checkout() {
                       <FaTruck className="text-ferrow-green-800" />
                       <span>Pilih Pengiriman</span>
                     </h2>
-
                     <div className="space-y-3">
                       {shippingOptions.map((option, index) => (
                         <div
@@ -647,7 +618,6 @@ export default function Checkout() {
                     </div>
                     {errors.shipping && <p className="text-red-500 text-sm mt-2">{errors.shipping}</p>}
                   </motion.div>
-
                   {/* Payment Method */}
                   <motion.div
                     className="glass rounded-xl border border-ferrow-yellow-400/30 p-6 mb-6"
@@ -659,7 +629,6 @@ export default function Checkout() {
                       <FaCreditCard className="text-ferrow-green-800" />
                       <span>Metode Pembayaran</span>
                     </h2>
-
                     <div className="space-y-3">
                       <div
                         className={`p-4 rounded-lg border transition-all ${
@@ -693,7 +662,6 @@ export default function Checkout() {
                   </motion.div>
                 </form>
               </div>
-
               {/* Order Summary */}
               <div className="lg:col-span-1">
                 <motion.div
@@ -706,7 +674,6 @@ export default function Checkout() {
                     <FaShoppingCart className="text-ferrow-green-800" />
                     <span>Ringkasan Pesanan</span>
                   </h2>
-
                   {/* Order Items */}
                   <div className="space-y-3 mb-6 max-h-60 overflow-y-auto">
                     {cartItems.map((item) => (
@@ -732,7 +699,6 @@ export default function Checkout() {
                       </div>
                     ))}
                   </div>
-
                   {/* Price Summary */}
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between">
@@ -757,7 +723,6 @@ export default function Checkout() {
                       <span className="text-ferrow-red-500 text-xl">Rp {total.toLocaleString("id-ID")}</span>
                     </div>
                   </div>
-
                   {/* Payment Button */}
                   <motion.button
                     type="submit"
@@ -785,7 +750,6 @@ export default function Checkout() {
                       </>
                     )}
                   </motion.button>
-
                   <div className="mt-4 text-center text-ferrow-green-800/60 text-sm">
                     Pembayaran aman dengan Midtrans
                   </div>
@@ -796,7 +760,6 @@ export default function Checkout() {
         </div>
         <Footer />
       </main>
-
       {/* Login Modal */}
       <LoginModal
         isOpen={isLoginModalOpen}

@@ -1,12 +1,12 @@
 "use client"
-
-import ProtectedRoute from "../../../components/ProtectedRoute"
-import DashboardLayout from "../../../components/DashboardLayout"
 import { useState, useEffect, type JSX } from "react"
 import { supabase } from "@/lib/supabaseClient"
-import { Package, DollarSign, ShoppingCart, TrendingUp, Eye } from "lucide-react"
+import { Package, DollarSign, ShoppingCart, LogOut, Users, BarChart3, Bell, Settings } from "lucide-react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
+import { useAdminAuth } from "../../../context/AuthContext"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge" // Import Badge component
 
 interface Product {
   id: number
@@ -19,9 +19,13 @@ interface Product {
 }
 
 interface Order {
-  id: number
+  id: string // Changed to string to match Supabase UUID
+  order_number: string
+  customer_name: string
+  customer_email: string
   total_amount: number
   status: string
+  payment_status: string
   created_at: string
 }
 
@@ -30,52 +34,57 @@ interface Stats {
   totalRevenue: number
   totalOrders: number
   lowStock: number
+  totalUsers: number
+  pendingOrders: number
 }
 
-export default function DashboardPage(): JSX.Element {
-  return (
-    <ProtectedRoute requireAuth={false}>
-      <DashboardLayout activeTab="dashboard">
-        <DashboardContent />
-      </DashboardLayout>
-    </ProtectedRoute>
-  )
-}
-
-function DashboardContent(): JSX.Element {
+export default function AdminDashboard(): JSX.Element {
   const [stats, setStats] = useState<Stats>({
     totalProducts: 0,
     totalRevenue: 0,
     totalOrders: 0,
     lowStock: 0,
+    totalUsers: 0,
+    pendingOrders: 0,
   })
   const [recentProducts, setRecentProducts] = useState<Product[]>([])
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]) // New state for recent orders
   const [loading, setLoading] = useState<boolean>(true)
   const router = useRouter()
 
+  const { admin, loading: authLoading, signOut, isAuthenticated } = useAdminAuth()
+
   useEffect(() => {
-    fetchDashboardData()
-
-    // Real-time subscription for products
-    const channel = supabase
-      .channel("realtime-products")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "products",
-        },
-        () => {
-          fetchDashboardData()
-        },
-      )
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
+    if (!authLoading && !isAuthenticated) {
+      router.push("/admin/login")
     }
-  }, [])
+  }, [isAuthenticated, authLoading, router])
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchDashboardData()
+      // Real-time subscription for products
+      const productsChannel = supabase
+        .channel("realtime-products")
+        .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => {
+          fetchDashboardData()
+        })
+        .subscribe()
+
+      // Real-time subscription for orders
+      const ordersChannel = supabase
+        .channel("realtime-orders")
+        .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => {
+          fetchDashboardData()
+        })
+        .subscribe()
+
+      return () => {
+        supabase.removeChannel(productsChannel)
+        supabase.removeChannel(ordersChannel)
+      }
+    }
+  }, [isAuthenticated])
 
   const fetchDashboardData = async () => {
     try {
@@ -84,47 +93,55 @@ function DashboardContent(): JSX.Element {
         .from("products")
         .select("*")
         .order("created_at", { ascending: false })
-
       if (productsError) throw productsError
 
-      // Fetch orders (if orders table exists)
+      // Fetch orders
       const { data: orders, error: ordersError } = await supabase
         .from("orders")
-        .select("id, total_amount, status, created_at")
+        .select("id, order_number, customer_name, customer_email, total_amount, status, payment_status, created_at")
+        .order("created_at", { ascending: false }) // Order by creation date for recency
+
+      if (ordersError) {
+        console.error("Error fetching orders:", ordersError)
+      }
+
+      // Fetch total users from 'users' table
+      const { count: userCount, error: usersCountError } = await supabase
+        .from("users") // Assuming a 'users' table exists for user data
+        .select("*", { count: "exact", head: true })
+
+      if (usersCountError) {
+        console.error("Error fetching user count:", usersCountError)
+      }
+      const totalUsers = userCount !== null ? userCount : 0
 
       // Calculate stats
-      if (products) {
-        const totalProducts = products.length
-        const lowStock = products.filter((p: Product) => p.stock < 10).length
+      const totalProducts = products ? products.length : 0
+      const lowStock = products ? products.filter((p: Product) => p.stock < 10).length : 0
 
-        // Calculate revenue from orders if available, otherwise from product inventory
-        let totalRevenue = 0
-        let totalOrders = 0
+      let totalRevenue = 0
+      let totalOrders = 0
+      let pendingOrders = 0
 
-        if (orders && !ordersError) {
-          totalRevenue = orders
-            .filter((order: Order) => order.status === "completed")
-            .reduce((sum: number, order: Order) => sum + order.total_amount, 0)
-          totalOrders = orders.length
-        } else {
-          // Fallback: calculate potential revenue from current inventory
-          totalRevenue = products.reduce(
-            (sum: number, p: Product) => sum + p.price * Math.min(p.stock, 10), // Assume max 10 sold per product
-            0,
-          )
-          totalOrders = products.filter((p: Product) => p.is_active).length * 2 // Mock calculation
-        }
-
-        setStats({
-          totalProducts,
-          totalRevenue,
-          totalOrders,
-          lowStock,
-        })
-
-        // Get recent products (last 5)
-        setRecentProducts(products.slice(0, 5))
+      if (orders) {
+        totalRevenue = orders
+          .filter((order: Order) => order.status === "completed" || order.payment_status === "paid")
+          .reduce((sum: number, order: Order) => sum + order.total_amount, 0)
+        totalOrders = orders.length
+        pendingOrders = orders.filter((order: Order) => order.status === "pending").length
       }
+
+      setStats({
+        totalProducts,
+        totalRevenue,
+        totalOrders,
+        lowStock,
+        totalUsers,
+        pendingOrders,
+      })
+
+      setRecentProducts(products ? products.slice(0, 5) : [])
+      setRecentOrders(orders ? orders.slice(0, 5) : []) // Set recent orders
     } catch (error) {
       console.error("Error fetching dashboard data:", error)
     } finally {
@@ -139,6 +156,36 @@ function DashboardContent(): JSX.Element {
     }).format(price)
   }
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("id-ID", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
+
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "completed":
+      case "delivered":
+      case "paid":
+        return "default"
+      case "pending":
+      case "processing":
+        return "secondary"
+      case "cancelled":
+      case "failed":
+      case "expired":
+        return "destructive"
+      case "shipped":
+        return "outline"
+      default:
+        return "default"
+    }
+  }
+
   // Loading Skeleton
   const LoadingSkeleton = () => (
     <div className="space-y-6">
@@ -146,7 +193,6 @@ function DashboardContent(): JSX.Element {
         <div className="h-8 w-48 bg-gray-200 rounded animate-pulse"></div>
         <div className="h-4 w-64 bg-gray-200 rounded animate-pulse"></div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="bg-white rounded-lg border border-gray-200 p-6">
@@ -160,7 +206,6 @@ function DashboardContent(): JSX.Element {
           </div>
         ))}
       </div>
-
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-4"></div>
         <div className="space-y-4">
@@ -179,153 +224,217 @@ function DashboardContent(): JSX.Element {
     </div>
   )
 
-  if (loading) {
+  if (loading || authLoading || !isAuthenticated) {
     return <LoadingSkeleton />
   }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Welcome to Ferrow Pet Store Admin</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          icon={<Package className="h-6 w-6 text-gray-600" />}
-          label="Total Products"
-          value={stats.totalProducts}
-          bgColor="bg-white"
-        />
-        <StatCard
-          icon={<DollarSign className="h-6 w-6 text-gray-600" />}
-          label="Total Revenue"
-          value={formatPrice(stats.totalRevenue)}
-          bgColor="bg-white"
-        />
-        <StatCard
-          icon={<ShoppingCart className="h-6 w-6 text-gray-600" />}
-          label="Total Orders"
-          value={stats.totalOrders}
-          bgColor="bg-white"
-        />
-        <StatCard
-          icon={<TrendingUp className="h-6 w-6 text-gray-600" />}
-          label="Low Stock Items"
-          value={stats.lowStock}
-          bgColor="bg-white"
-        />
-      </div>
-
-      {/* Recent Products */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Recent Products</h2>
-              <p className="text-sm text-gray-600 mt-1">Latest products added to your inventory</p>
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <h1 className="text-2xl font-bold text-green-800">Ferrow Admin</h1>
+              </div>
             </div>
-            <button
-              onClick={() => router.push("/admin/products")}
-              className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-            >
-              <Eye className="h-4 w-4" />
-              View All
-            </button>
+            <div className="flex items-center space-x-4">
+              <button className="p-2 text-gray-400 hover:text-gray-600">
+                <Bell className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => router.push("/admin/settings")}
+                className="p-2 text-gray-400 hover:text-gray-600"
+                title="Settings"
+              >
+                <Settings className="h-5 w-5" />
+              </button>
+              <div className="flex items-center space-x-3">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">{admin?.username}</p>
+                  <p className="text-xs text-gray-500 capitalize">{admin?.role}</p>
+                </div>
+                <button
+                  onClick={signOut}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+      </header>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {/* Welcome Section */}
+        <div className="px-4 py-6 sm:px-0">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-900">Welcome back, {admin?.username}!</h2>
+            <p className="mt-2 text-gray-600">Here's what's happening with your store today.</p>
+          </div>
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <ShoppingCart className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Total Orders</dt>
+                      <dd className="text-lg font-medium text-gray-900">{stats.totalOrders}</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+                      <dd className="text-lg font-medium text-gray-900">{stats.totalUsers}</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <DollarSign className="h-6 w-6 text-yellow-600" />
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
+                      <dd className="text-lg font-medium text-gray-900">
+                        Rp {stats.totalRevenue.toLocaleString("id-ID")}
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <Package className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Pending Orders</dt>
+                      <dd className="text-lg font-medium text-gray-900">{stats.pendingOrders}</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Quick Actions */}
+          <div className="bg-white shadow rounded-lg mb-8">
+            <div className="px-4 py-5 sm:p-6">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Actions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <button
+                  onClick={() => router.push("/admin/orders")}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  Manage Orders
+                </button>
+                <button
+                  onClick={() => router.push("/admin/products")}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Package className="h-5 w-5 mr-2" />
+                  Manage Products
+                </button>
+                <button
+                  onClick={() => router.push("/admin/analytics")}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <BarChart3 className="h-5 w-5 mr-2" />
+                  View Analytics
+                </button>
+                <button
+                  onClick={() => router.push("/admin/settings")}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Settings className="h-5 w-5 mr-2" />
+                  Settings
+                </button>
+              </div>
+            </div>
+          </div>
 
-        <div className="p-6">
-          {recentProducts.length === 0 ? (
-            <div className="text-center py-8">
-              <Package className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-4 text-lg font-semibold text-gray-900">No products found</h3>
-              <p className="text-gray-600 mt-2">Get started by adding your first product.</p>
-              <button
-                onClick={() => router.push("/admin/products/new")}
-                className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
-              >
-                Add Product
-              </button>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Product
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Price
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Stock
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {recentProducts.map((product) => (
-                    <tr key={product.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="relative h-8 w-8 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                            {product.image_url ? (
-                              <Image
-                                src={product.image_url || "/placeholder.svg"}
-                                alt={product.name}
-                                fill
-                                className="object-cover"
-                              />
-                            ) : (
-                              <div className="flex items-center justify-center h-full">
-                                <Package className="h-4 w-4 text-gray-400" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                            <div className="text-xs text-gray-500">ID: {product.id}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {formatPrice(product.price)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-sm ${product.stock < 10 ? "text-red-600" : "text-gray-900"}`}>
-                            {product.stock}
-                          </span>
-                          {product.stock < 10 && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              Low
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            product.is_active ? "bg-gray-100 text-gray-800" : "bg-gray-50 text-gray-600"
-                          }`}
-                        >
-                          {product.is_active ? "Active" : "Inactive"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          {/* Recent Orders Section */}
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Recent Orders</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Order Number</TableHead>
+                      <TableHead>Customer Name</TableHead>
+                      <TableHead>Total Amount</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Payment Status</TableHead>
+                      <TableHead>Created At</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentOrders.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-4">
+                          No recent orders found.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      recentOrders.map((order) => (
+                        <TableRow key={order.id}>
+                          <TableCell className="font-medium">{order.order_number}</TableCell>
+                          <TableCell>{order.customer_name}</TableCell>
+                          <TableCell>{formatPrice(order.total_amount)}</TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusBadgeVariant(order.status)}>{order.status}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusBadgeVariant(order.payment_status)}>{order.payment_status}</Badge>
+                          </TableCell>
+                          <TableCell>{formatDate(order.created_at)}</TableCell>
+                          <TableCell className="text-right">
+                            <button
+                              onClick={() => router.push(`/admin/orders/${order.id}`)}
+                              className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
+                              title="View Details"
+                            >
+                              View
+                            </button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

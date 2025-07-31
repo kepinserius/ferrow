@@ -1,26 +1,21 @@
-import type React from "react"
-import type { Metadata } from "next"
+import type { ReactNode } from "react"
 import { Inter } from "next/font/google"
-import "../globals.css"
-import { AuthProvider } from "../../context/AuthContext"
+import { Providers } from "../../components/Providers" // Sesuaikan path jika berbeda
 
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: "Ferrow Pet Store",
-  description: "Premium pet food and accessories",
+export const metadata = {
+  title: "Admin Dashboard",
+  description: "Admin dashboard for managing orders, products, and users.",
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
+  console.log("Admin RootLayout is rendering") // Debugging log
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
+    // Hapus tag <html> dan <body> di sini.
+    // Konten ini akan dirender di dalam <body> dari app/layout.tsx.
+    <div className="min-h-screen bg-gray-50">
+      <Providers>{children}</Providers> {/* Gunakan Providers di sini */}
+    </div>
   )
 }

@@ -8,26 +8,12 @@ export async function GET(request: NextRequest) {
     const limit = Number.parseInt(searchParams.get("limit") || "10")
     const status = searchParams.get("status")
     const search = searchParams.get("search")
-    const userId = searchParams.get("user_id") // Add user_id filter
-
+    const userId = searchParams.get("user_id")
     const offset = (page - 1) * limit
 
     let query = supabaseAdmin
       .from("orders")
-      .select(
-        `
-        *,
-        order_items (
-          id,
-          product_name,
-          product_code,
-          quantity,
-          unit_price,
-          total_price
-        )
-      `,
-        { count: "exact" },
-      )
+      .select(`*`, { count: "exact" }) // Select all columns
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1)
 
@@ -35,12 +21,10 @@ export async function GET(request: NextRequest) {
     if (userId) {
       query = query.eq("user_id", userId)
     }
-
     // Filter by status
     if (status && status !== "all") {
       query = query.eq("status", status)
     }
-
     // Search by order number or customer name
     if (search) {
       query = query.or(`order_number.ilike.%${search}%,customer_name.ilike.%${search}%`)
@@ -50,9 +34,19 @@ export async function GET(request: NextRequest) {
 
     if (error) throw error
 
+    // Memproses data pesanan untuk memastikan kolom numerik dikembalikan sebagai string
+    // agar sesuai dengan format JSON yang Anda berikan.
+    const processedOrders =
+      orders?.map((order) => ({
+        ...order,
+        subtotal: String(order.subtotal),
+        shipping_cost: String(order.shipping_cost),
+        total_amount: String(order.total_amount),
+      })) || []
+
     return NextResponse.json({
       success: true,
-      orders: orders || [],
+      orders: processedOrders, // Mengembalikan pesanan yang sudah diproses
       pagination: {
         page,
         limit,
@@ -69,10 +63,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    console.log("Received order data:", body) // Debug log
-
+    console.log("Received order data:", body)
     const {
-      user_id, // Add user_id to order creation
+      user_id,
       customer_name,
       customer_email,
       customer_phone,
@@ -128,7 +121,7 @@ export async function POST(request: NextRequest) {
 
     // Prepare order data with user_id
     const orderData = {
-      user_id: user_id, // Add user_id to associate order with user
+      user_id: user_id,
       order_number: orderNumber,
       customer_name: customer_name.trim(),
       customer_email: customer_email.trim(),
@@ -151,12 +144,10 @@ export async function POST(request: NextRequest) {
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }
-
-    console.log("Order data to insert:", orderData) // Debug log
+    console.log("Order data to insert:", orderData)
 
     // Create order
     const { data: order, error: orderError } = await supabaseAdmin.from("orders").insert(orderData).select().single()
-
     if (orderError) {
       console.error("Order creation error:", orderError)
       throw orderError
@@ -170,8 +161,8 @@ export async function POST(request: NextRequest) {
       return [
         hash.substr(0, 8),
         hash.substr(8, 4),
-        "4" + hash.substr(12, 3), // Version 4
-        ((Number.parseInt(hash.substr(16, 1), 16) & 0x3) | 0x8).toString(16) + hash.substr(17, 3), // Variant bits
+        "4" + hash.substr(12, 3),
+        ((Number.parseInt(hash.substr(16, 1), 16) & 0x3) | 0x8).toString(16) + hash.substr(17, 3),
         hash.substr(20, 12),
       ].join("-")
     }
@@ -182,7 +173,6 @@ export async function POST(request: NextRequest) {
       // This ensures same product always gets same UUID
       const productIdentifier = `${item.name}-${item.id || "unknown"}`
       const productId = generateDeterministicUUID(productIdentifier)
-
       return {
         order_id: order.id,
         product_id: productId,
@@ -194,11 +184,9 @@ export async function POST(request: NextRequest) {
         total_price: Number(item.price) * Number(item.quantity),
       }
     })
-
-    console.log("Order items to insert:", orderItems) // Debug log
+    console.log("Order items to insert:", orderItems)
 
     const { error: itemsError } = await supabaseAdmin.from("order_items").insert(orderItems)
-
     if (itemsError) {
       console.error("Order items creation error:", itemsError)
       // Try to delete the order if items creation failed

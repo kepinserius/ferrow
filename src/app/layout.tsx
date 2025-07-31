@@ -1,3 +1,4 @@
+import { Providers } from '@/components/Providers'
 import './globals.css'
 import { CartProvider } from '@/context/CartContext'
 import localFont from 'next/font/local'
@@ -81,9 +82,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#EFE4C8" />
       </head>
       <body className="font-sans antialiased bg-ferrow-cream-400 text-ferrow-green-800" suppressHydrationWarning={true}>
-        <CartProvider>
-          {children}
-        </CartProvider>
+        <Providers>{children}</Providers> {/* Gunakan Providers di sini */}
       </body>
     </html>
   )

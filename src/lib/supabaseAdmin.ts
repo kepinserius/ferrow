@@ -1,20 +1,17 @@
 import { createClient } from "@supabase/supabase-js"
 
+// Pastikan Anda memiliki SUPABASE_URL dan SUPABASE_SERVICE_ROLE_KEY di environment variables Anda
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-if (!supabaseUrl) {
-  throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL environment variable")
+if (!supabaseUrl || !supabaseServiceRoleKey) {
+  throw new Error(
+    "Missing Supabase URL or Service Role Key. Make sure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in your environment variables.",
+  )
 }
 
-if (!supabaseServiceKey) {
-  throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY environment variable")
-}
-
-// Admin client with service role key (bypasses RLS)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
   auth: {
-    autoRefreshToken: false,
-    persistSession: false,
+    persistSession: false, // Service role client should not persist sessions
   },
 })

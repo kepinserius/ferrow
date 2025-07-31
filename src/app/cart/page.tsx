@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
@@ -41,7 +41,6 @@ export default function Cart() {
               </motion.button>
             </Link>
           </div>
-
           {isLoading ? (
             <div className="flex justify-center items-center py-20">
               <div className="relative w-20 h-20">
@@ -85,7 +84,6 @@ export default function Cart() {
                             {item.category}
                           </div>
                         </div>
-
                         {/* Product Info */}
                         <div className="flex-grow">
                           <h3 className="text-lg font-bold">{item.name}</h3>
@@ -109,7 +107,6 @@ export default function Cart() {
                                 <FaPlus size={12} />
                               </button>
                             </div>
-
                             {/* Remove Button */}
                             <motion.button
                               whileHover={{ scale: 1.1 }}
@@ -122,7 +119,6 @@ export default function Cart() {
                             </motion.button>
                           </div>
                         </div>
-
                         {/* Price */}
                         <div className="text-right flex-shrink-0 mt-2 md:mt-0">
                           <div className="text-lg font-bold text-ferrow-red-500">
@@ -137,7 +133,6 @@ export default function Cart() {
                   </div>
                 </div>
               </div>
-
               {/* Order Summary */}
               <div className="lg:col-span-1">
                 <motion.div
@@ -150,7 +145,6 @@ export default function Cart() {
                     <FaShoppingCart className="text-ferrow-green-800" />
                     <span>Ringkasan Pesanan</span>
                   </h2>
-
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between">
                       <span className="text-ferrow-green-800/70">Subtotal</span>
@@ -174,7 +168,6 @@ export default function Cart() {
                       <span className="text-ferrow-red-500 text-xl">Rp {total.toLocaleString("id-ID")}</span>
                     </div>
                   </div>
-
                   <Link href="/checkout">
                     <motion.button
                       whileHover={{ scale: 1.03 }}
@@ -184,7 +177,6 @@ export default function Cart() {
                       Lanjutkan ke Pembayaran
                     </motion.button>
                   </Link>
-
                   <div className="mt-4 text-center text-ferrow-green-800/60 text-sm">
                     Dengan melanjutkan, Anda menyetujui{" "}
                     <Link href="/terms" className="text-ferrow-red-500 hover:underline">

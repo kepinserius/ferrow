@@ -22,16 +22,18 @@ import {
   XCircle,
 } from "lucide-react"
 
+// Update OrderItem interface to match API response (prices as string)
 interface OrderItem {
   id: string
   product_name: string
   product_code: string
-  product_image_url?: string
+  product_image_url?: string | null
   quantity: number
-  unit_price: number
-  total_price: number
+  unit_price: string // Changed to string
+  total_price: string // Changed to string
 }
 
+// Update Order interface to match API response (amounts as string, includes order_items)
 interface Order {
   id: string
   order_number: string
@@ -42,21 +44,26 @@ interface Order {
   shipping_city: string
   shipping_province: string
   shipping_postal_code: string
-  subtotal: number
-  shipping_cost: number
-  total_amount: number
-  courier?: string
-  service?: string
-  estimated_delivery?: string
-  tracking_number?: string
-  payment_method?: string
+  shipping_city_id?: string | null
+  shipping_province_id?: string | null
+  subtotal: string // Changed to string
+  shipping_cost: string // Changed to string
+  total_amount: string // Changed to string
+  courier?: string | null
+  service?: string | null
+  estimated_delivery?: string | null
+  tracking_number?: string | null
+  payment_method?: string | null
   payment_status: string
+  payment_token?: string | null
+  payment_url?: string | null
+  paid_at?: string | null
   status: string
-  notes?: string
+  notes?: string | null
   created_at: string
   updated_at: string
-  paid_at?: string
-  order_items: OrderItem[]
+  user_id?: string | null
+  order_items: OrderItem[] // Now directly included from API
 }
 
 export default function OrderDetailPage() {
@@ -90,12 +97,16 @@ export default function OrderDetailPage() {
         throw new Error(data.error || "Failed to fetch order")
       }
 
-      setOrder(data.order)
+      // API now returns data with correct string types for amounts and nested order_items
+      // No need for manual String() conversions here anymore
+      const fetchedOrder: Order = data.order
+
+      setOrder(fetchedOrder)
       setEditData({
-        status: data.order.status,
-        payment_status: data.order.payment_status,
-        tracking_number: data.order.tracking_number || "",
-        notes: data.order.notes || "",
+        status: fetchedOrder.status,
+        payment_status: fetchedOrder.payment_status,
+        tracking_number: fetchedOrder.tracking_number || "",
+        notes: fetchedOrder.notes || "",
       })
     } catch (error: any) {
       console.error("Error fetching order:", error)
@@ -115,14 +126,13 @@ export default function OrderDetailPage() {
         },
         body: JSON.stringify(editData),
       })
-
       const data = await response.json()
 
       if (!data.success) {
         throw new Error(data.error || "Failed to update order")
       }
-
-      setOrder(data.order)
+      // Re-fetch order to get updated data, including potentially new paid_at
+      fetchOrder()
       setEditing(false)
       setError(null)
     } catch (error: any) {
@@ -143,18 +153,15 @@ export default function OrderDetailPage() {
         },
         body: JSON.stringify({ order_id: order?.id }),
       })
-
       const data = await response.json()
 
       if (!data.success) {
         throw new Error(data.error || "Failed to create payment")
       }
-
       // Open payment URL in new tab
       if (data.redirect_url) {
         window.open(data.redirect_url, "_blank")
       }
-
       // Refresh order data
       fetchOrder()
     } catch (error: any) {
@@ -174,10 +181,8 @@ export default function OrderDetailPage() {
       delivered: { color: "bg-green-100 text-green-800", icon: CheckCircle },
       cancelled: { color: "bg-red-100 text-red-800", icon: XCircle },
     }
-
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending
     const Icon = config.icon
-
     return (
       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${config.color}`}>
         <Icon className="h-4 w-4" />
@@ -193,10 +198,8 @@ export default function OrderDetailPage() {
       failed: { color: "bg-red-100 text-red-800", icon: XCircle },
       expired: { color: "bg-gray-100 text-gray-800", icon: AlertCircle },
     }
-
     const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending
     const Icon = config.icon
-
     return (
       <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${config.color}`}>
         <Icon className="h-4 w-4" />
@@ -205,7 +208,9 @@ export default function OrderDetailPage() {
     )
   }
 
-  const formatCurrency = (amount: number) => {
+  // formatCurrency now expects a string and converts it to number for formatting
+  const formatCurrency = (amountString: string) => {
+    const amount = Number(amountString)
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
@@ -341,7 +346,6 @@ export default function OrderDetailPage() {
               )}
             </div>
           </div>
-
           {/* Error Message */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -351,7 +355,6 @@ export default function OrderDetailPage() {
               </div>
             </div>
           )}
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
@@ -392,27 +395,25 @@ export default function OrderDetailPage() {
                       </div>
                     ))}
                   </div>
-
                   {/* Order Summary */}
                   <div className="mt-6 pt-6 border-t border-gray-200">
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Subtotal</span>
-                        <span className="text-gray-900">{formatCurrency(order.subtotal)}</span>
+                        <span className="text-gray-900">{formatCurrency(order.subtotal)}</span>{" "}
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Shipping</span>
-                        <span className="text-gray-900">{formatCurrency(order.shipping_cost)}</span>
+                        <span className="text-gray-900">{formatCurrency(order.shipping_cost)}</span>{" "}
                       </div>
                       <div className="flex justify-between text-base font-medium pt-2 border-t border-gray-200">
                         <span className="text-gray-900">Total</span>
-                        <span className="text-gray-900">{formatCurrency(order.total_amount)}</span>
+                        <span className="text-gray-900">{formatCurrency(order.total_amount)}</span>{" "}
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
               {/* Customer Information */}
               <div className="bg-white rounded-lg border border-gray-200">
                 <div className="px-6 py-4 border-b border-gray-200">
@@ -453,7 +454,6 @@ export default function OrderDetailPage() {
                 </div>
               </div>
             </div>
-
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Order Status */}
@@ -481,7 +481,6 @@ export default function OrderDetailPage() {
                       getStatusBadge(order.status)
                     )}
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Payment Status</label>
                     {editing ? (
@@ -499,7 +498,6 @@ export default function OrderDetailPage() {
                       getPaymentStatusBadge(order.payment_status)
                     )}
                   </div>
-
                   {order.paid_at && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Paid At</label>
@@ -511,7 +509,6 @@ export default function OrderDetailPage() {
                   )}
                 </div>
               </div>
-
               {/* Shipping Information */}
               <div className="bg-white rounded-lg border border-gray-200">
                 <div className="px-6 py-4 border-b border-gray-200">
@@ -529,14 +526,12 @@ export default function OrderDetailPage() {
                       </div>
                     </div>
                   )}
-
                   {order.estimated_delivery && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Estimated Delivery</label>
                       <span className="text-sm text-gray-900">{order.estimated_delivery}</span>
                     </div>
                   )}
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Tracking Number</label>
                     {editing ? (
@@ -553,7 +548,6 @@ export default function OrderDetailPage() {
                   </div>
                 </div>
               </div>
-
               {/* Notes */}
               <div className="bg-white rounded-lg border border-gray-200">
                 <div className="px-6 py-4 border-b border-gray-200">

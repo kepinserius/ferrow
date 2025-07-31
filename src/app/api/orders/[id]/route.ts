@@ -1,35 +1,106 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabaseAdmin"
 
+// Definisi Interface untuk OrderItem
+interface OrderItem {
+  id: string
+  order_id: string
+  product_id: string
+  product_name: string
+  product_code: string
+  product_image_url?: string | null
+  quantity: number
+  unit_price: number // Dari DB, ini adalah number
+  total_price: number // Dari DB, ini adalah number
+  created_at: string
+}
+
+// Definisi Interface untuk Order
+interface Order {
+  id: string
+  order_number: string
+  customer_name: string
+  customer_email: string
+  customer_phone: string
+  shipping_address: string
+  shipping_city: string
+  shipping_province: string
+  shipping_postal_code: string
+  shipping_city_id?: string | null
+  shipping_province_id?: string | null
+  subtotal: number // Dari DB, ini adalah number
+  shipping_cost: number // Dari DB, ini adalah number
+  total_amount: number // Dari DB, ini adalah number
+  courier?: string | null
+  service?: string | null
+  estimated_delivery?: string | null
+  tracking_number?: string | null
+  payment_method?: string | null
+  payment_status: string
+  payment_token?: string | null
+  payment_url?: string | null
+  paid_at?: string | null
+  status: string
+  notes?: string | null
+  created_at: string
+  updated_at: string
+  user_id?: string | null
+  order_items: OrderItem[] // Menambahkan array order_items
+}
+
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { data: order, error } = await supabaseAdmin
+    // Mengambil data order dan order_items terkait
+    const { data, error } = await supabaseAdmin
       .from("orders")
-      .select(`
+      .select(
+        `
         *,
         order_items (
           id,
+          order_id,
           product_id,
           product_name,
           product_code,
           product_image_url,
           quantity,
           unit_price,
-          total_price
+          total_price,
+          created_at
         )
-      `)
+      `,
+      )
       .eq("id", params.id)
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error("Supabase error fetching order:", error)
+      throw error
+    }
 
-    if (!order) {
+    if (!data) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
+    }
+
+    // Menggunakan type assertion untuk 'data' agar TypeScript memahami strukturnya
+    const order: Order = data as Order
+
+    // Memproses data order untuk memastikan kolom numerik dikembalikan sebagai string
+    const processedOrder = {
+      ...order,
+      subtotal: String(order.subtotal),
+      shipping_cost: String(order.shipping_cost),
+      total_amount: String(order.total_amount),
+      order_items: order.order_items.map((item) => ({
+        ...item,
+        unit_price: String(item.unit_price),
+        total_price: String(item.total_price),
+      })),
     }
 
     return NextResponse.json({
       success: true,
-      order,
+      order: processedOrder,
     })
   } catch (error: any) {
     console.error("Error fetching order:", error)
@@ -41,7 +112,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   try {
     const body = await request.json()
     const { status, payment_status, tracking_number, notes } = body
-
     const updateData: any = {
       updated_at: new Date().toISOString(),
     }

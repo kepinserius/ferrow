@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "../../../context/AuthContext"
+import { useAdminAuth } from "../../../context/AuthContext" // Diperbarui
 import { Eye, EyeOff, Lock, User, AlertCircle, Loader2 } from "lucide-react"
 
 export default function AdminLoginPage() {
@@ -14,7 +14,8 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const { signIn, isAuthenticated, loading } = useAuth()
+  // Diperbarui: Menggunakan useAdminAuth dan mengganti nama signIn menjadi adminSignIn
+  const { signIn: adminSignIn, isAuthenticated, loading } = useAdminAuth()
   const router = useRouter()
 
   // Redirect if already authenticated
@@ -44,8 +45,8 @@ export default function AdminLoginPage() {
     setError("")
 
     try {
-      const result = await signIn(formData.username, formData.password)
-
+      // Diperbarui: Memanggil adminSignIn
+      const result = await adminSignIn(formData.username, formData.password)
       if (result.success) {
         router.push("/admin/dashboard")
       } else {

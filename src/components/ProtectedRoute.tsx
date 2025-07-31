@@ -16,17 +16,17 @@ export default function ProtectedRoute({
   requireAuth = true,
   redirectTo = "/admin/login",
 }: ProtectedRouteProps) {
-  const { admin, loading, isAuthenticated } = useAuth()
+  const { admin, loading, isAdminAuthenticated } = useAuth()
   const [shouldRedirect, setShouldRedirect] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && requireAuth && !isAuthenticated) {
+    if (!loading && requireAuth && !isAdminAuthenticated) {
       console.log("[ProtectedRoute] User not authenticated, redirecting to login")
       setShouldRedirect(true)
       router.push(redirectTo)
     }
-  }, [loading, requireAuth, isAuthenticated, router, redirectTo])
+  }, [loading, requireAuth, isAdminAuthenticated, router, redirectTo])
 
   // Loading state
   if (loading) {
@@ -44,7 +44,7 @@ export default function ProtectedRoute({
   }
 
   // Not authenticated and auth is required
-  if (requireAuth && !isAuthenticated && !shouldRedirect) {
+  if (requireAuth && !isAdminAuthenticated && !shouldRedirect) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50">
         <div className="max-w-md w-full mx-4">
