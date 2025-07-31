@@ -9,7 +9,7 @@ interface User {
   email: string
   name: string
   phone?: string
-  email_verified?: boolean
+  email_verified: boolean // Pastikan ini ada
 }
 
 // Admin interface for admin users
@@ -24,7 +24,7 @@ interface AuthContextType {
   // Customer auth
   user: User | null
   userLoading: boolean
-  signIn: (email: string, name: string, phone?: string) => Promise<{ success: boolean; message?: string }>
+  signIn: (email: string, name: string, phone?: string) => Promise<{ success: boolean; message?: string; user?: User }>
   signOut: () => void
   // Admin auth
   admin: Admin | null
@@ -35,6 +35,15 @@ interface AuthContextType {
   isUserAuthenticated: boolean
   isAdminAuthenticated: boolean
   loading: boolean // Combined loading state
+}
+
+// Tambahkan interface ini di dekat definisi AuthContextType
+export interface UseUserAuthReturnType {
+  user: User | null
+  loading: boolean
+  signIn: (email: string, name: string, phone?: string) => Promise<{ success: boolean; message?: string; user?: User }>
+  signOut: () => void
+  isAuthenticated: boolean
 }
 
 // Define AuthContext here
@@ -64,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("checkUserAuthStatus: userData from localStorage =", userData ? "exists" : "null")
       if (userData) {
         const parsedUser = JSON.parse(userData)
-        // Verify user with server (optional)
+        // Verify user with server (optional, but good for checking email_verified status)
         try {
           const response = await fetch("/api/auth/verify-user", {
             method: "POST",
@@ -77,23 +86,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (response.ok) {
             const data = await response.json()
             console.log("checkUserAuthStatus: /api/auth/verify-user response data =", data)
-            if (data.success) {
+            if (data.success && data.user && data.user.email_verified) {
               setUser(data.user)
               console.log("checkUserAuthStatus: User set from API verification:", data.user)
             } else {
-              console.log("checkUserAuthStatus: /api/auth/verify-user returned success: false. Clearing local storage.")
+              console.log("checkUserAuthStatus: User not verified or verification failed. Clearing local storage.")
               localStorage.removeItem("ferrow-user")
               setUser(null)
             }
           } else {
-            // If verification fails, keep local data for now
-            console.log("checkUserAuthStatus: /api/auth/verify-user response not OK. Keeping local data.")
-            setUser(parsedUser)
+            // If verification fails, clear local data
+            console.log("checkUserAuthStatus: /api/auth/verify-user response not OK. Clearing local data.")
+            localStorage.removeItem("ferrow-user")
+            setUser(null)
           }
         } catch (error) {
-          // If server is down, keep local data
+          // If server is down or network error, clear local data
           console.error("checkUserAuthStatus: Error verifying user with server:", error)
-          setUser(parsedUser)
+          localStorage.removeItem("ferrow-user")
+          setUser(null)
         }
       }
     } catch (error) {
@@ -171,7 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string,
     name: string,
     phone?: string,
-  ): Promise<{ success: boolean; message?: string }> => {
+  ): Promise<{ success: boolean; message?: string; user?: User }> => {
     try {
       const response = await fetch("/api/auth/signin", {
         method: "POST",
@@ -184,9 +195,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("signIn: /api/auth/signin response data =", data)
       if (data.success) {
         const userData = data.user
-        localStorage.setItem("ferrow-user", JSON.stringify(userData))
-        setUser(userData)
-        return { success: true }
+        if (userData && userData.email_verified) {
+          localStorage.setItem("ferrow-user", JSON.stringify(userData))
+          setUser(userData)
+          return { success: true, message: data.message, user: userData }
+        } else {
+          // User registered but not verified, or existing but not verified
+          return { success: false, message: data.message || "Please verify your email to log in." }
+        }
       } else {
         return { success: false, message: data.message || "Sign in failed" }
       }
@@ -267,7 +283,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     adminSignIn,
     adminSignOut,
     // Utility
-    isUserAuthenticated: !!user,
+    isUserAuthenticated: !!user && user.email_verified, // Only authenticated if user exists AND email is verified
     isAdminAuthenticated: !!admin,
     loading: userLoading || adminLoading, // Combined loading state
   }
@@ -286,8 +302,8 @@ export function useAuth() {
   return context
 }
 
-// Separate hooks for cleaner usage
-export function useUserAuth() {
+// Kemudian, ubah tanda tangan fungsi useUserAuth menjadi seperti ini:
+export function useUserAuth(): UseUserAuthReturnType {
   const { user, userLoading, signIn, signOut, isUserAuthenticated } = useAuth()
   return { user, loading: userLoading, signIn, signOut, isAuthenticated: isUserAuthenticated }
 }

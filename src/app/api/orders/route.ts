@@ -13,7 +13,21 @@ export async function GET(request: NextRequest) {
 
     let query = supabaseAdmin
       .from("orders")
-      .select(`*`, { count: "exact" }) // Select all columns
+      .select(
+        `
+        *,
+        order_items (
+          id,
+          product_name,
+          product_code,
+          product_image_url,
+          quantity,
+          unit_price,
+          total_price
+        )
+        `,
+        { count: "exact" },
+      ) // Select all columns including order_items
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1)
 

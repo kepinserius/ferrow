@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import ProtectedRoute from "../../../components/ProtectedRoute"
 import DashboardLayout from "../../../components/DashboardLayout"
-import { supabase } from "@/lib/supabaseClient"
 import {
   Package,
   Search,
@@ -20,7 +19,7 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  ArrowLeft,
+  LayoutDashboard,
 } from "lucide-react"
 
 // New/Updated OrderItem interface for consistency
@@ -59,7 +58,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all") // Fixed unterminated string literal and unexpected token `\`
+  const [statusFilter, setStatusFilter] = useState("all")
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
     limit: 10,
@@ -81,56 +80,35 @@ export default function OrdersPage() {
       setLoading(true)
       setError(null)
 
-      let query = supabase
-        .from("orders")
-        .select(
-          `
-        id,
-        order_number,
-        customer_name,
-        customer_email,
-        total_amount,
-        status,
-        payment_status,
-        created_at,
-        order_items (
-          product_name,
-          quantity,
-          unit_price,
-          total_price
-        )
-      `, // Komentar telah dihapus dari sini
-          { count: "exact" },
-        )
-        .order("created_at", { ascending: false })
-
+      const params = new URLSearchParams()
+      params.append("page", String(pagination.page))
+      params.append("limit", String(pagination.limit))
       if (statusFilter && statusFilter !== "all") {
-        query = query.eq("status", statusFilter)
+        params.append("status", statusFilter)
       }
-
       if (searchTerm) {
-        query = query.or(`order_number.ilike.%${searchTerm}%,customer_name.ilike.%${searchTerm}%`)
+        params.append("search", searchTerm)
       }
 
-      const offset = (pagination.page - 1) * pagination.limit
-      query = query.range(offset, offset + pagination.limit - 1)
+      console.log("OrdersPage fetchOrders: Fetching from API...")
+      const response = await fetch(`/api/orders?${params.toString()}`)
+      const result = await response.json()
 
-      console.log("OrdersPage fetchOrders: Executing Supabase query...")
-      const { data: ordersData, error: supabaseError, count } = await query
-
-      if (supabaseError) {
-        console.error("OrdersPage fetchOrders: Supabase error details:", supabaseError)
-        throw supabaseError
+      if (!response.ok) {
+        console.error("OrdersPage fetchOrders: API error details:", result.error)
+        throw new Error(result.error || "Failed to fetch orders from API.")
       }
 
-      console.log("OrdersPage fetchOrders: Supabase Response Data:", ordersData)
-      console.log("OrdersPage fetchOrders: Supabase Count:", count)
+      console.log("OrdersPage fetchOrders: API Response Data:", result.orders)
+      console.log("OrdersPage fetchOrders: API Pagination:", result.pagination)
 
-      // API now returns total_amount as string, and order_items with string prices
+      const ordersData = result.orders
+      const count = result.pagination.total
+
       const processedOrders =
         ordersData?.map((order: any) => ({
           ...order,
-          total_amount: String(order.total_amount), // Ensure it's a string
+          total_amount: String(order.total_amount),
           order_items: order.order_items.map((item: any) => ({
             ...item,
             unit_price: String(item.unit_price),
@@ -201,7 +179,6 @@ export default function OrdersPage() {
     )
   }
 
-  // formatCurrency now expects a string and converts it to number for formatting
   const formatCurrency = (amountString: string) => {
     const amount = Number(amountString)
     return new Intl.NumberFormat("id-ID", {
@@ -253,11 +230,11 @@ export default function OrdersPage() {
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => router.push("/admin/orders")}
+                onClick={() => router.push("/admin/dashboard")} // Kembali ke dashboard utama
                 className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Orders
+                <LayoutDashboard className="h-4 w-4" />
+                Back to Dashboard
               </button>
             </div>
             <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
@@ -277,9 +254,18 @@ export default function OrdersPage() {
       <DashboardLayout activeTab="orders">
         <div className="space-y-6">
           {/* Header */}
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">Orders</h1>
-            <p className="text-gray-600">Manage customer orders and track their status</p>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900">Orders</h1>
+              <p className="text-gray-600">Manage customer orders and track their status</p>
+            </div>
+            <button
+              onClick={() => router.push("/admin/dashboard")} // Tombol kembali ke dashboard utama
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Back to Dashboard
+            </button>
           </div>
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -455,7 +441,7 @@ export default function OrdersPage() {
                             <Eye className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => router.push(`/admin/orders/${order.id}/edit`)}
+                            onClick={() => router.push(`/admin/orders/${order.id}`)} // Mengarahkan ke halaman detail untuk edit in-place
                             className="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50 transition-colors"
                             title="Edit Order"
                           >
@@ -555,4 +541,3 @@ export default function OrdersPage() {
     </ProtectedRoute>
   )
 }
-  

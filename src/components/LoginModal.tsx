@@ -1,14 +1,17 @@
 "use client"
+
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useUserAuth } from "@/context/AuthContext"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Loader2, AlertCircle } from "lucide-react"
+
 interface LoginModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
 }
+
 export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalProps) {
   const [email, setEmail] = useState("")
   const [name, setName] = useState("")
@@ -16,9 +19,12 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
   const [isRegisterMode, setIsRegisterMode] = useState(false)
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+
   const { signIn } = useUserAuth()
+
   useEffect(() => {
     if (!isOpen) {
+      // Reset form state when modal closes
       setEmail("")
       setName("")
       setPhone("")
@@ -27,29 +33,35 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
       setIsLoading(false)
     }
   }, [isOpen])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setIsLoading(true)
+
     if (!email || !name) {
-      setError("Email and Name are required.")
+      setError("Email dan Nama lengkap wajib diisi.")
       setIsLoading(false)
       return
     }
+
     try {
+      // The signIn function handles both registration and login based on user existence
       const result = await signIn(email, name, phone)
+
       if (result.success) {
-        onSuccess()
+        onSuccess() // Call onSuccess callback on successful login/registration
       } else {
-        setError(result.message || "Login/Registration failed. Please try again.")
+        setError(result.message || "Login/Pendaftaran gagal. Silakan coba lagi.")
       }
     } catch (err) {
-      console.error("Login/Registration error:", err)
-      setError("An unexpected error occurred. Please try again.")
+      console.error("Login/Pendaftaran error:", err)
+      setError("Terjadi kesalahan tak terduga. Silakan coba lagi.")
     } finally {
       setIsLoading(false)
     }
   }
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -107,7 +119,7 @@ export default function LoginModal({ isOpen, onClose, onSuccess }: LoginModalPro
               {isRegisterMode && (
                 <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                    Nomor Telepon (Opsional)
+                    Nomor Telepon
                   </label>
                   <input
                     type="tel"

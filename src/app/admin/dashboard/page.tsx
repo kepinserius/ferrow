@@ -1,12 +1,15 @@
 "use client"
 import { useState, useEffect, type JSX } from "react"
 import { supabase } from "@/lib/supabaseClient"
-import { Package, DollarSign, ShoppingCart, LogOut, Users, BarChart3, Bell, Settings } from "lucide-react"
+import { Package, DollarSign, ShoppingCart, Users, BarChart3, Settings, Eye } from "lucide-react" // Add Eye icon
 import { useRouter } from "next/navigation"
 import { useAdminAuth } from "../../../context/AuthContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge" // Import Badge component
+import { Button } from "@/components/ui/button" // Import Button component
+import ProtectedRoute from "../../../components/ProtectedRoute" // Import ProtectedRoute
+import DashboardLayout from "../../../components/DashboardLayout" // Import DashboardLayout
 
 interface Product {
   id: number
@@ -188,40 +191,42 @@ export default function AdminDashboard(): JSX.Element {
 
   // Loading Skeleton
   const LoadingSkeleton = () => (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <div className="h-8 w-48 bg-gray-200 rounded animate-pulse"></div>
-        <div className="h-4 w-64 bg-gray-200 rounded animate-pulse"></div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
-              <div className="ml-4 space-y-2">
-                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+    <DashboardLayout activeTab="dashboard">
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <div className="h-8 w-48 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-4 w-64 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="p-6">
+              <div className="flex items-center">
+                <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                <div className="ml-4 space-y-2 flex-1">
+                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-4"></div>
-        <div className="space-y-4">
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="flex items-center space-x-4">
-              <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse"></div>
-              <div className="space-y-2 flex-1">
-                <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-              </div>
-              <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
-              <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
-            </div>
+            </Card>
           ))}
         </div>
+        <Card className="p-6">
+          <div className="h-6 w-32 bg-gray-200 rounded animate-pulse mb-4"></div>
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center space-x-4">
+                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse"></div>
+                <div className="space-y-2 flex-1">
+                  <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 w-12 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
-    </div>
+    </DashboardLayout>
   )
 
   if (loading || authLoading || !isAuthenticated) {
@@ -229,153 +234,95 @@ export default function AdminDashboard(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-green-800">Ferrow Admin</h1>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button className="p-2 text-gray-400 hover:text-gray-600">
-                <Bell className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() => router.push("/admin/settings")}
-                className="p-2 text-gray-400 hover:text-gray-600"
-                title="Settings"
-              >
-                <Settings className="h-5 w-5" />
-              </button>
-              <div className="flex items-center space-x-3">
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{admin?.username}</p>
-                  <p className="text-xs text-gray-500 capitalize">{admin?.role}</p>
-                </div>
-                <button
-                  onClick={signOut}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Welcome Section */}
-        <div className="px-4 py-6 sm:px-0">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Welcome back, {admin?.username}!</h2>
-            <p className="mt-2 text-gray-600">Here's what's happening with your store today.</p>
+    <ProtectedRoute>
+      <DashboardLayout activeTab="dashboard">
+        <div className="space-y-6">
+          {/* Welcome Section */}
+          <div className="space-y-1">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900">Welcome back, {admin?.username}!</h2>
+            <p className="text-gray-600">Here's what's happening with your store today.</p>
           </div>
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <ShoppingCart className="h-6 w-6 text-green-600" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Total Orders</dt>
-                      <dd className="text-lg font-medium text-gray-900">{stats.totalOrders}</dd>
-                    </dl>
-                  </div>
+            <Card className="p-6 rounded-lg border border-gray-200">
+              <CardContent className="p-0 flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Orders</CardTitle>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
                 </div>
-              </div>
-            </div>
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <Users className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Total Users</dt>
-                      <dd className="text-lg font-medium text-gray-900">{stats.totalUsers}</dd>
-                    </dl>
-                  </div>
+                <ShoppingCart className="h-8 w-8 text-green-600" />
+              </CardContent>
+            </Card>
+            <Card className="p-6 rounded-lg border border-gray-200">
+              <CardContent className="p-0 flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Users</CardTitle>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalUsers}</p>
                 </div>
-              </div>
-            </div>
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <DollarSign className="h-6 w-6 text-yellow-600" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
-                      <dd className="text-lg font-medium text-gray-900">
-                        Rp {stats.totalRevenue.toLocaleString("id-ID")}
-                      </dd>
-                    </dl>
-                  </div>
+                <Users className="h-8 w-8 text-blue-600" />
+              </CardContent>
+            </Card>
+            <Card className="p-6 rounded-lg border border-gray-200">
+              <CardContent className="p-0 flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Revenue</CardTitle>
+                  <p className="text-2xl font-bold text-gray-900">Rp {stats.totalRevenue.toLocaleString("id-ID")}</p>
                 </div>
-              </div>
-            </div>
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <Package className="h-6 w-6 text-red-600" />
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-medium text-gray-500 truncate">Pending Orders</dt>
-                      <dd className="text-lg font-medium text-gray-900">{stats.pendingOrders}</dd>
-                    </dl>
-                  </div>
+                <DollarSign className="h-8 w-8 text-yellow-600" />
+              </CardContent>
+            </Card>
+            <Card className="p-6 rounded-lg border border-gray-200">
+              <CardContent className="p-0 flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-sm font-medium text-gray-600">Pending Orders</CardTitle>
+                  <p className="text-2xl font-bold text-gray-900">{stats.pendingOrders}</p>
                 </div>
-              </div>
-            </div>
+                <Package className="h-8 w-8 text-red-600" />
+              </CardContent>
+            </Card>
           </div>
           {/* Quick Actions */}
-          <div className="bg-white shadow rounded-lg mb-8">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Actions</h3>
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <button
+                <Button
                   onClick={() => router.push("/admin/orders")}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  variant="outline"
+                  className="flex items-center justify-center h-auto py-3"
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Manage Orders
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => router.push("/admin/products")}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  variant="outline"
+                  className="flex items-center justify-center h-auto py-3"
                 >
                   <Package className="h-5 w-5 mr-2" />
                   Manage Products
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => router.push("/admin/analytics")}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  variant="outline"
+                  className="flex items-center justify-center h-auto py-3"
                 >
                   <BarChart3 className="h-5 w-5 mr-2" />
                   View Analytics
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => router.push("/admin/settings")}
-                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  variant="outline"
+                  className="flex items-center justify-center h-auto py-3"
                 >
                   <Settings className="h-5 w-5 mr-2" />
                   Settings
-                </button>
+                </Button>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Recent Orders Section */}
           <Card className="w-full">
@@ -417,13 +364,72 @@ export default function AdminDashboard(): JSX.Element {
                           </TableCell>
                           <TableCell>{formatDate(order.created_at)}</TableCell>
                           <TableCell className="text-right">
-                            <button
+                            <Button
                               onClick={() => router.push(`/admin/orders/${order.id}`)}
-                              className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
                               title="View Details"
                             >
-                              View
-                            </button>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Products Section */}
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Recent Products</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product Name</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Stock</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Created At</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentProducts.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-4">
+                          No recent products found.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      recentProducts.map((product) => (
+                        <TableRow key={product.id}>
+                          <TableCell className="font-medium">{product.name}</TableCell>
+                          <TableCell>{formatPrice(product.price)}</TableCell>
+                          <TableCell>{product.stock}</TableCell>
+                          <TableCell>
+                            <Badge variant={product.is_active ? "default" : "secondary"}>
+                              {product.is_active ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{formatDate(product.created_at || "")}</TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              onClick={() => router.push(`/admin/products/${product.id}`)}
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              title="View Details"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
                           </TableCell>
                         </TableRow>
                       ))
@@ -434,28 +440,7 @@ export default function AdminDashboard(): JSX.Element {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </div>
-  )
-}
-
-interface StatCardProps {
-  icon: JSX.Element
-  label: string
-  value: number | string
-  bgColor?: string
-}
-
-function StatCard({ icon, label, value, bgColor = "bg-white" }: StatCardProps): JSX.Element {
-  return (
-    <div className={`${bgColor} rounded-lg border border-gray-200 p-6`}>
-      <div className="flex items-center">
-        <div className="flex-shrink-0">{icon}</div>
-        <div className="ml-4">
-          <p className="text-sm font-medium text-gray-600">{label}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
-        </div>
-      </div>
-    </div>
+      </DashboardLayout>
+    </ProtectedRoute>
   )
 }

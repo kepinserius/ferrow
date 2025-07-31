@@ -4,7 +4,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { useAuth } from "../context/AuthContext"
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, Menu, X, Bell, Search } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, LogOut, Menu, X, Bell, Search, ChartNoAxesCombined } from "lucide-react"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -19,7 +19,8 @@ export default function DashboardLayout({ children, activeTab = "dashboard" }: D
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard, key: "dashboard" },
     { name: "Products", href: "/admin/products", icon: Package, key: "products" },
     { name: "Orders", href: "/admin/orders", icon: ShoppingCart, key: "orders" },
-    { name: "Customers", href: "/admin/customers", icon: Users, key: "customers" },
+    { name: "Analytics", href: "/admin/analytics", icon: ChartNoAxesCombined, key: "analytics" },
+    { name: "Users", href: "/admin/users", icon: Users, key: "users" },
     { name: "Settings", href: "/admin/settings", icon: Settings, key: "settings" },
   ]
 
@@ -36,7 +37,7 @@ export default function DashboardLayout({ children, activeTab = "dashboard" }: D
           <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <Package className="h-8 w-8 text-green-600" />
-              <span className="text-xl font-bold text-gray-900">Pet Store</span>
+              <span className="text-xl font-bold text-gray-900">Ferrow Admin</span>
             </div>
             <button
               onClick={() => setSidebarOpen(false)}
