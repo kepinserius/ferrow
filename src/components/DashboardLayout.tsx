@@ -13,7 +13,7 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children, activeTab = "dashboard" }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { admin, signOut } = useAuth()
+  const { admin, adminSignOut } = useAuth()
 
   const navigation = [
     { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard, key: "dashboard" },
@@ -25,7 +25,7 @@ export default function DashboardLayout({ children, activeTab = "dashboard" }: D
   ]
 
   const handleSignOut = async () => {
-    await signOut()
+    await adminSignOut()
   }
 
   return (
