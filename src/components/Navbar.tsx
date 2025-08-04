@@ -6,25 +6,30 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FaShoppingCart, FaBars, FaTimes } from 'react-icons/fa';
 import { useCart } from '@/context/CartContext';
+import { usePathname } from 'next/navigation';
+
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { cartCount } = useCart();
+  const pathname = usePathname();
   
-  // Handle scroll event to change navbar appearance
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-    
+useEffect(() => {
+  const handleScroll = () => {
+    setIsScrolled(window.scrollY > 50);
+  };
+
+  if (pathname === '/') {
+    // Hanya di halaman '/' baru dengar event scroll
+    handleScroll(); // supaya langsung deteksi saat refresh
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  } else {
+    // Di halaman lain, langsung set solid
+    setIsScrolled(true);
+  }
+}, [pathname]);
   
   // Close mobile menu on resize
   useEffect(() => {
@@ -42,7 +47,8 @@ const Navbar = () => {
     <motion.header
       className="fixed top-0 left-0 w-full z-50 transition-all duration-300"
       style={{ 
-        backgroundColor: isScrolled ? '#EFE4C8' : 'transparent',
+        backgroundColor: isScrolled ? '#A68A64' : 'transparent',
+        backdropFilter: 'blur(5px)',
         padding: isScrolled ? '0.5rem 0' : '1rem 0',
         boxShadow: isScrolled ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' : 'none'
       }}
@@ -104,7 +110,7 @@ const Navbar = () => {
           {/* Mobile Menu Button */}
           <button 
             className="md:hidden p-2"
-            style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}
+            style={{ color: isScrolled ? '#EAD49C' : '#FFFFFF' }}
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle mobile menu"
           >

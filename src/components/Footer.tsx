@@ -109,21 +109,21 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-6">Hubungi Kami</h3>
             <ul className="space-y-4">
               <li className="flex items-start">
-                <FaMapMarkerAlt className="text-ferrow-red-500 mt-1 mr-3 flex-shrink-0" />
+                <FaInstagram className="text-ferrow-red-500 mt-1 mr-3 flex-shrink-0" />
                 <span className="text-ferrow-cream-400/80">
-                  Jl. Contoh No. 123, Jakarta Selatan, Indonesia 12345
+                  ferrowpetfood.id
                 </span>
               </li>
               <li className="flex items-center">
                 <FaEnvelope className="text-ferrow-red-500 mr-3 flex-shrink-0" />
                 <a href="mailto:info@ferrow.id" className="text-ferrow-cream-400/80 hover:text-ferrow-yellow-400 transition-colors">
-                  info@ferrow.id
+                  ferrowpetfoodid@gmail.com
                 </a>
               </li>
               <li className="flex items-center">
                 <FaPhone className="text-ferrow-red-500 mr-3 flex-shrink-0" />
                 <a href="tel:+6281234567890" className="text-ferrow-cream-400/80 hover:text-ferrow-yellow-400 transition-colors">
-                  +62 812-3456-7890
+                  085124344064
                 </a>
               </li>
             </ul>

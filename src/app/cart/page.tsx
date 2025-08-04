@@ -34,7 +34,7 @@ export default function Cart() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="text-ferrow-red-500 hover:text-ferrow-red-600 transition-colors flex items-center gap-2"
+                className="text-[#A53410] hover:text-[#8a2c0d] transition-colors flex items-center gap-2"
               >
                 <FaArrowLeft />
                 <span>Lanjutkan Belanja</span>
