@@ -8,28 +8,27 @@ import { FaShoppingCart, FaBars, FaTimes } from 'react-icons/fa';
 import { useCart } from '@/context/CartContext';
 import { usePathname } from 'next/navigation';
 
-
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { cartCount } = useCart();
   const pathname = usePathname();
   
-useEffect(() => {
-  const handleScroll = () => {
-    setIsScrolled(window.scrollY > 50);
-  };
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
 
-  if (pathname === '/') {
-    // Hanya di halaman '/' baru dengar event scroll
-    handleScroll(); // supaya langsung deteksi saat refresh
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  } else {
-    // Di halaman lain, langsung set solid
-    setIsScrolled(true);
-  }
-}, [pathname]);
+    if (pathname === '/') {
+      // Hanya di halaman '/' baru dengar event scroll
+      handleScroll(); // supaya langsung deteksi saat refresh
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    } else {
+      // Di halaman lain, langsung set solid
+      setIsScrolled(true);
+    }
+  }, [pathname]);
   
   // Close mobile menu on resize
   useEffect(() => {
@@ -48,7 +47,7 @@ useEffect(() => {
       className="fixed top-0 left-0 w-full z-50 transition-all duration-300"
       style={{ 
         backgroundColor: isScrolled ? '#A68A64' : 'transparent',
-        backdropFilter: 'blur(5px)',
+        backdropFilter: 'blur(2px)',
         padding: isScrolled ? '0.5rem 0' : '1rem 0',
         boxShadow: isScrolled ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' : 'none'
       }}
@@ -58,32 +57,73 @@ useEffect(() => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <div className="relative w-32 h-10">
-              <Image 
-                src={isScrolled ? "/images/LOGO/FINAL-MAIN LOGO-GREEN.png" : "/images/LOGO/FINAL-MAIN LOGO-WHITE.png"}
-                alt="Ferrow Logo"
-                fill
-                sizes="128px"
-                className="object-contain"
-                priority
+          {/* Enhanced Logo with Prominent Design */}
+          <Link href="/" className="flex items-center relative z-60">
+            <motion.div 
+              className="relative"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.3 }}
+            >
+              {/* Background Label/Badge */}
+              <div 
+                className="absolute inset-0 rounded-xl shadow-2xl transform -rotate-1 scale-110"
+                style={{ 
+                  backgroundColor: isScrolled ? '#EAD49C' : '#A53410',
+                  opacity: 0.9,
+                  top: '-8px',
+                  bottom: '-8px',
+                  left: '-12px',
+                  right: '-12px'
+                }}
               />
-            </div>
+              
+              {/* Main Logo Container */}
+              <div 
+                className="relative bg-white rounded-lg shadow-lg p-3"
+                style={{ 
+                  width: '180px',
+                  height: '70px'
+                }}
+              >
+                <div className="relative w-full h-full">
+                  <Image 
+                    src={isScrolled ? "/images/LOGO/FINAL-MAIN LOGO-GREEN.png" : "/images/LOGO/FINAL-MAIN LOGO-GREEN.png"}
+                    alt="Ferrow Logo"
+                    fill
+                    sizes="180px"
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              </div>
+              
+              {/* Glow Effect */}
+              <div 
+                className="absolute inset-0 rounded-xl opacity-20 animate-pulse"
+                style={{ 
+                  backgroundColor: isScrolled ? '#EAD49C' : '#A68A64',
+                  filter: 'blur(8px)',
+                  top: '-10px',
+                  bottom: '-10px',
+                  left: '-14px',
+                  right: '-14px'
+                }}
+              />
+            </motion.div>
           </Link>
           
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-1xl md:text-1xl hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+          {/* Desktop Navigation - Centered */}
+          <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2" style={{ fontFamily: "'AKKO', 'Montserrat', 'Inter', sans-serif" }}>
+            <Link href="/" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
               Beranda
             </Link>
-            <Link href="/products" className="text-1xl md:text-1xl hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="/products" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
               Produk
             </Link>
-            <Link href="#philosophy" className="text-1xl md:text-1xl hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="#philosophy" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
               Filosofi
             </Link>
-            <Link href="#faq" className="text-1xl md:text-1xl hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="#faq" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
               FAQ
             </Link>
           </nav>
@@ -131,10 +171,10 @@ useEffect(() => {
             transition={{ duration: 0.3 }}
           >
             <div className="container mx-auto px-4 py-4">
-              <nav className="flex flex-col space-y-4">
+              <nav className="flex flex-col space-y-4" style={{ fontFamily: "'AKKO', 'Montserrat', 'Inter', sans-serif" }}>
                 <Link 
                   href="/" 
-                  className="hover:text-ferrow-yellow-400 transition-colors py-2 border-b border-ferrow-cream-400/10"
+                  className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide"
                   style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -142,7 +182,7 @@ useEffect(() => {
                 </Link>
                 <Link 
                   href="/products" 
-                  className="hover:text-ferrow-yellow-400 transition-colors py-2 border-b border-ferrow-cream-400/10"
+                  className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide"
                   style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -150,7 +190,7 @@ useEffect(() => {
                 </Link>
                 <Link 
                   href="#philosophy" 
-                  className="hover:text-ferrow-yellow-400 transition-colors py-2 border-b border-ferrow-cream-400/10"
+                  className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide"
                   style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -158,7 +198,7 @@ useEffect(() => {
                 </Link>
                 <Link 
                   href="#testimonials" 
-                  className="hover:text-ferrow-yellow-400 transition-colors py-2 border-b border-ferrow-cream-400/10"
+                  className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide"
                   style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -166,7 +206,7 @@ useEffect(() => {
                 </Link>
                 <Link 
                   href="#faq" 
-                  className="hover:text-ferrow-yellow-400 transition-colors py-2"
+                  className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 font-semibold tracking-wide"
                   style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -181,4 +221,4 @@ useEffect(() => {
   );
 };
 
-export default Navbar; 
+export default Navbar;
