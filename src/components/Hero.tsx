@@ -47,7 +47,7 @@ const Hero = () => {
       <motion.div 
         className="absolute inset-0 bg-cover bg-center"
         style={{ 
-          backgroundImage: "url('/images/herobg.jpg')", 
+          backgroundImage: "url('/images/hero11.jpg')", 
           filter: "brightness(0.9)",
           y
         }}
@@ -113,7 +113,7 @@ const Hero = () => {
           </motion.div>
           
           <motion.h1 
-            className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-ferrow-green-800 mb-6"
+            className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
