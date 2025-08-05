@@ -5,7 +5,7 @@ import Hero from "@/components/Hero"
 import Features from "@/components/Features"
 import Philosophy from "@/components/Philosophy"
 import Products from "@/components/Products"
-import Testimonials from "@/components/Testimonials"
+import SusuWedus from "@/components/SusuWedus"
 import FAQ from "@/components/FAQ"
 import Newsletter from "@/components/Newsletter"
 import CallToAction from "@/components/CallToAction"
@@ -47,7 +47,7 @@ export default function Home() {
       <Features />
       <Philosophy />
       <Products />
-      <Testimonials />
+      <SusuWedus />
       <FAQ />
       <Newsletter />
       <CallToAction />

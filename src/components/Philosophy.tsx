@@ -1,517 +1,406 @@
-'use client';
+"use client"
+import { motion } from "framer-motion"
+import type React from "react"
 
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
-import Image from 'next/image';
-import { FaLeaf, FaPaw } from 'react-icons/fa';
+import { useRef, useState, useEffect } from "react"
+import Image from "next/image"
+import { FaLeaf, FaHeart, FaShieldAlt, FaPaw, FaStar, FaUsers } from "react-icons/fa"
+import { GiWolfHowl, GiForest, GiMountains } from "react-icons/gi"
+
+interface PhilosophyFeature {
+  icon: React.ReactNode
+  title: string
+  description: string
+  benefit: string
+}
 
 const Philosophy = () => {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"]
-  });
-  
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1.2, 1]);
-  const imageOpacity = useTransform(scrollYProgress, [0, 0.3, 0.6], [0.6, 0.8, 1]);
-  const textY = useTransform(scrollYProgress, [0, 0.8], [60, 0]);
-  
+  const ref = useRef<HTMLDivElement>(null)
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  // Return early loading state if not mounted
+  if (!isMounted) {
+    return (
+      <section className="relative py-20 bg-ferrow-cream-400 overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <div className="mb-6">
+              <span className="inline-flex items-center gap-2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full text-sm font-medium text-ferrow-green-800 border border-ferrow-yellow-400/50">
+                <GiWolfHowl className="w-5 h-5" />
+                Filosofi FERROW
+              </span>
+            </div>
+            <h2 className="text-5xl lg:text-7xl font-display font-bold text-ferrow-green-800 mb-6">
+              <span className="block">FUEL THE</span>
+              <span className="text-gradient bg-gradient-to-r from-ferrow-green-600 to-ferrow-green-500 bg-clip-text text-transparent">
+                WILD
+              </span>
+            </h2>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  const philosophyFeatures: PhilosophyFeature[] = [
+    {
+      icon: <FaPaw className="w-8 h-8" />,
+      title: "Mengurangi Kerontokan Bulu",
+      description: "Formula khusus dengan superfood untuk kesehatan kulit dan bulu",
+      benefit: "Bulu lebih sehat & berkilau",
+    },
+    {
+      icon: <FaShieldAlt className="w-8 h-8" />,
+      title: "Menghilangkan Bau Kotoran",
+      description: "Kandungan probiotik alami untuk sistem pencernaan optimal",
+      benefit: "Pencernaan lebih sehat",
+    },
+    {
+      icon: <FaHeart className="w-8 h-8" />,
+      title: "Meredakan Stres",
+      description: "Nutrisi khusus yang mendukung ketenangan dan kesejahteraan mental",
+      benefit: "Hewan lebih tenang & bahagia",
+    },
+  ]
+
   return (
-    <section id="philosophy" ref={ref} className="py-24 bg-ferrow-green-800 text-ferrow-cream-400 relative overflow-hidden">
-      {/* Background elements */}
-      <motion.div 
-        className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-ferrow-yellow-400/10 blur-3xl"
-        animate={{ 
-          scale: [1, 1.1, 1],
-          opacity: [0.2, 0.3, 0.2]
-        }}
-        transition={{ 
-          duration: 8,
-          repeat: Infinity,
-          repeatType: "reverse"
-        }}
-      />
-      
+    <section ref={ref} className="relative py-20 bg-ferrow-cream-400 overflow-hidden">
+      {/* Background Elements - Simple animations without scroll-based transforms */}
+      <div className="absolute inset-0">
+        <motion.div
+          animate={{ 
+            y: [0, -20, 0],
+            opacity: [0.3, 0.5, 0.3]
+          }}
+          transition={{ 
+            duration: 8, 
+            repeat: Infinity, 
+            ease: "easeInOut" 
+          }}
+          className="absolute top-20 right-20 w-64 h-64 rounded-full bg-ferrow-green-500/10 blur-3xl"
+        />
+        <motion.div
+          animate={{ 
+            y: [0, 20, 0],
+            opacity: [0.2, 0.4, 0.2]
+          }}
+          transition={{ 
+            duration: 6, 
+            repeat: Infinity, 
+            ease: "easeInOut",
+            delay: 2
+          }}
+          className="absolute bottom-40 left-20 w-48 h-48 rounded-full bg-ferrow-yellow-400/10 blur-2xl"
+        />
+      </div>
+
+      {/* Wild Pattern Overlay */}
+      <div className="absolute inset-0 opacity-5">
+        <motion.div 
+          className="absolute top-10 left-10"
+          animate={{ rotate: [0, 5, 0] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <GiForest className="w-32 h-32 text-ferrow-green-500" />
+        </motion.div>
+        <motion.div 
+          className="absolute bottom-20 right-20"
+          animate={{ rotate: [0, -3, 0] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        >
+          <GiMountains className="w-40 h-40 text-ferrow-green-500" />
+        </motion.div>
+        <motion.div 
+          className="absolute top-1/2 left-1/4"
+          animate={{ 
+            rotate: [0, 10, 0],
+            scale: [1, 1.05, 1]
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        >
+          <GiWolfHowl className="w-24 h-24 text-ferrow-green-500" />
+        </motion.div>
+      </div>
+
       <div className="container mx-auto px-4 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Image Column */}
+        {/* Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="mb-6"
+          >
+            <span className="inline-flex items-center gap-2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full text-sm font-medium text-ferrow-green-800 border border-ferrow-yellow-400/50">
+              <GiWolfHowl className="w-5 h-5" />
+              Filosofi FERROW
+            </span>
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="text-5xl lg:text-7xl font-display font-bold text-ferrow-green-800 mb-6"
+          >
+            <span className="block">FUEL THE</span>
+            <span className="text-gradient bg-gradient-to-r from-ferrow-green-600 to-ferrow-green-500 bg-clip-text text-transparent">
+              WILD
+            </span>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            viewport={{ once: true }}
+            className="text-xl text-ferrow-green-700 max-w-3xl mx-auto leading-relaxed"
+          >
+            Menghidupkan naluri alami hewan kesayangan dengan nutrisi premium yang terinspirasi dari alam liar
+          </motion.p>
+        </motion.div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
+          {/* Left Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
+            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="relative h-[500px] rounded-2xl overflow-hidden group"
+            className="space-y-8"
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-ferrow-green-800/80 via-ferrow-green-800/30 to-transparent z-10 rounded-2xl"></div>
-            
+            <div className="space-y-6">
+              <motion.h3
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="text-3xl font-bold text-ferrow-green-800"
+              >
+                Passion & Kepedulian untuk Keluarga Berbulu
+              </motion.h3>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true }}
+                className="space-y-4 text-ferrow-green-700 text-lg leading-relaxed"
+              >
+                <p>
+                  <strong className="text-ferrow-green-800">FERROW</strong> adalah brand makanan anjing dan kucing yang
+                  lahir dari passion dan kepedulian terhadap hewan peliharaan. Kami percaya bahwa hewan adalah bagian
+                  dari keluarga yang layak mendapatkan perawatan terbaik.
+                </p>
+                <p>
+                  Oleh karena itu, kami menghadirkan produk yang tidak hanya sekedar makanan atau camilan biasa, tetapi
+                  memiliki <strong className="text-ferrow-green-800">added value</strong> yang memberikan manfaat lebih
+                  bagi kesehatan dan kesejahteraan mereka.
+                </p>
+              </motion.div>
+            </div>
+
+            {/* Brand Values */}
             <motion.div
-              style={{ scale: imageScale, opacity: imageOpacity }}
-              className="absolute inset-0"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              viewport={{ once: true }}
+              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
             >
-              <Image
-                src="/images/pilosopi.jpg"
-                alt="Filosofi Alam Liar"
-                fill
-                className="object-cover rounded-2xl transition-transform duration-1000 group-hover:scale-105"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
-            </motion.div>
-            
-            {/* Floating elements */}
-            <motion.div 
-              className="absolute top-10 left-10 z-20 w-16 h-16 bg-ferrow-red-500/20 backdrop-blur-md rounded-full flex items-center justify-center"
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <FaPaw className="text-ferrow-red-400 text-2xl" />
-            </motion.div>
-            
-            <motion.div 
-              className="absolute bottom-10 right-10 z-20 w-16 h-16 bg-ferrow-yellow-400/20 backdrop-blur-md rounded-full flex items-center justify-center"
-              animate={{ y: [0, 15, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            >
-              <FaLeaf className="text-ferrow-yellow-400 text-2xl" />
+              <motion.div 
+                className="bg-white/60 backdrop-blur-sm p-6 rounded-xl border border-ferrow-yellow-400/30"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 bg-ferrow-green-500/20 rounded-full flex items-center justify-center">
+                    <FaHeart className="w-6 h-6 text-ferrow-green-600" />
+                  </div>
+                  <h4 className="font-bold text-ferrow-green-800">Keluarga</h4>
+                </div>
+                <p className="text-ferrow-green-700 text-sm">
+                  Hewan adalah bagian dari keluarga yang berhak mendapat yang terbaik
+                </p>
+              </motion.div>
+
+              <motion.div 
+                className="bg-white/60 backdrop-blur-sm p-6 rounded-xl border border-ferrow-yellow-400/30"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 bg-ferrow-yellow-400/20 rounded-full flex items-center justify-center">
+                    <FaStar className="w-6 h-6 text-ferrow-green-600" />
+                  </div>
+                  <h4 className="font-bold text-ferrow-green-800">Premium</h4>
+                </div>
+                <p className="text-ferrow-green-700 text-sm">Kualitas terbaik dengan superfood dan nutrisi optimal</p>
+              </motion.div>
+
+              <motion.div 
+                className="bg-white/60 backdrop-blur-sm p-6 rounded-xl border border-ferrow-yellow-400/30"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 bg-ferrow-green-500/20 rounded-full flex items-center justify-center">
+                    <FaLeaf className="w-6 h-6 text-ferrow-green-600" />
+                  </div>
+                  <h4 className="font-bold text-ferrow-green-800">Alami</h4>
+                </div>
+                <p className="text-ferrow-green-700 text-sm">Terinspirasi dari diet alami predator di alam liar</p>
+              </motion.div>
+
+              <motion.div 
+                className="bg-white/60 backdrop-blur-sm p-6 rounded-xl border border-ferrow-yellow-400/30"
+                whileHover={{ scale: 1.02, y: -5 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 bg-ferrow-yellow-400/20 rounded-full flex items-center justify-center">
+                    <FaUsers className="w-6 h-6 text-ferrow-green-600" />
+                  </div>
+                  <h4 className="font-bold text-ferrow-green-800">Edukasi</h4>
+                </div>
+                <p className="text-ferrow-green-700 text-sm">
+                  Mengedukasi pemilik tentang nutrisi melalui media sosial
+                </p>
+              </motion.div>
             </motion.div>
           </motion.div>
 
-          {/* Content Column */}
+          {/* Right Image */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
-            style={{ y: textY }}
+            className="relative"
           >
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="inline-block px-4 py-1 mb-4 glass rounded-full text-sm font-medium border border-ferrow-yellow-400/30"
-            >
-              FILOSOFI KAMI
-            </motion.span>
-            
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-6">
-              Filosofi <span className="text-gradient">Alam Liar</span> Kami
-            </h2>
-            
-            <p className="text-ferrow-cream-400/80 mb-6 text-lg">
-              Di Ferrow, kami percaya bahwa nutrisi terbaik untuk hewan peliharaan Anda berasal dari alam. Terinspirasi oleh pola makan alami predator di alam liar, kami menciptakan makanan yang memenuhi kebutuhan biologis hewan kesayangan Anda.
-            </p>
-            
-            <p className="text-ferrow-cream-400/80 mb-8 text-lg">
-              Setiap formula kami dirancang untuk memberikan nutrisi holistik yang lengkap, dengan kandungan protein hewani berkualitas tinggi dan tanpa bahan-bahan yang tidak diperlukan seperti biji-bijian, pewarna buatan, dan pengawet.
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div 
-                className="glass p-6 rounded-xl border border-ferrow-yellow-400/30 hover-card"
-                whileHover={{ y: -10, transition: { duration: 0.2 } }}
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+              <Image
+                src="/images/pilosopi2.jpg"
+                alt="FERROW Fuel The Wild Philosophy"
+                width={600}
+                height={500}
+                className="w-full h-[500px] object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-ferrow-green-800/30 via-transparent to-transparent" />
+
+              {/* Floating Quote */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.8 }}
+                viewport={{ once: true }}
+                className="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-ferrow-yellow-400/50"
               >
-                <div className="w-12 h-12 bg-ferrow-red-500/20 rounded-full flex items-center justify-center mb-4">
-                  <FaLeaf className="text-ferrow-red-400 text-xl" />
-                </div>
-                <h3 className="text-xl font-bold text-ferrow-cream-400 mb-3">Bahan Premium</h3>
-                <p className="text-ferrow-cream-400/70">
-                  Kami hanya menggunakan bahan-bahan berkualitas tertinggi dari sumber yang terpercaya dan berkelanjutan.
-                </p>
-              </motion.div>
-              
-              <motion.div 
-                className="glass p-6 rounded-xl border border-ferrow-yellow-400/30 hover-card"
-                whileHover={{ y: -10, transition: { duration: 0.2 } }}
-              >
-                <div className="w-12 h-12 bg-ferrow-red-500/20 rounded-full flex items-center justify-center mb-4">
-                  <FaPaw className="text-ferrow-red-400 text-xl" />
-                </div>
-                <h3 className="text-xl font-bold text-ferrow-cream-400 mb-3">Proses Alami</h3>
-                <p className="text-ferrow-cream-400/70">
-                  Proses produksi kami menjaga integritas nutrisi dari setiap bahan yang kami gunakan.
+                <p className="text-ferrow-green-800 font-medium text-center italic">
+                  "Menghidupkan naluri alami dengan nutrisi yang terinspirasi dari alam liar"
                 </p>
               </motion.div>
             </div>
           </motion.div>
         </div>
+
+        {/* Superfood Benefits Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="mb-16"
+        >
+          <div className="text-center mb-12">
+            <h3 className="text-4xl font-bold text-ferrow-green-800 mb-4">Superfood dengan Manfaat Khusus</h3>
+            <p className="text-xl text-ferrow-green-700 max-w-3xl mx-auto">
+              Berbeda dari produk lain, FERROW mengandung superfood dengan manfaat khusus yang memberikan solusi nyata
+              untuk kesehatan hewan kesayangan
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {philosophyFeatures.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05, y: -10 }}
+                className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl border border-ferrow-yellow-400/30 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <motion.div 
+                  className="w-16 h-16 bg-ferrow-green-500/20 rounded-full flex items-center justify-center mb-6 mx-auto"
+                  whileHover={{ rotate: 360 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  <div className="text-ferrow-green-600">{feature.icon}</div>
+                </motion.div>
+                <h4 className="text-xl font-bold text-ferrow-green-800 mb-3 text-center">{feature.title}</h4>
+                <p className="text-ferrow-green-700 mb-4 text-center leading-relaxed">{feature.description}</p>
+                <div className="bg-ferrow-yellow-400/20 px-4 py-2 rounded-full text-center">
+                  <span className="text-ferrow-green-800 font-medium text-sm">{feature.benefit}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Call to Action */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <motion.div
+            className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl border border-ferrow-yellow-400/30 max-w-4xl mx-auto"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.3 }}
+          >
+            <h3 className="text-2xl font-bold text-ferrow-green-800 mb-4">Bergabunglah dengan Komunitas FERROW</h3>
+            <p className="text-ferrow-green-700 mb-6 leading-relaxed">
+              Dapatkan edukasi lengkap tentang kandungan produk dan tips perawatan hewan melalui media sosial kami.
+              Bersama-sama kita wujudkan kesehatan optimal untuk hewan kesayangan.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-3 text-white rounded-lg font-semibold transition-colors"
+                style={{ backgroundColor: "#333A2D" }}
+              >
+                Jelajahi Produk
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-3 bg-white/80 text-ferrow-green-800 rounded-lg font-semibold border-2 border-ferrow-yellow-400/50 hover:border-ferrow-yellow-400 transition-colors"
+              >
+                Ikuti Media Sosial
+              </motion.button>
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
-  );
-};
+  )
+}
 
-export default Philosophy; 
-
-// "use client"
-
-// import { motion, useScroll, useTransform, useSpring } from "framer-motion"
-// import { useRef, useState } from "react"
-// import Image from "next/image"
-// import { FaLeaf, FaPaw, FaHeart, FaGraduationCap, FaRecycle, FaLightbulb } from "react-icons/fa"
-// import Link from "next/link"
-
-// const Philosophy = () => {
-//   const ref = useRef<HTMLDivElement>(null)
-//   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
-
-//   const { scrollYProgress } = useScroll({
-//     target: ref,
-//     offset: ["start end", "end start"],
-//   })
-
-//   // 3D scroll effects
-//   const imageRotateY = useTransform(scrollYProgress, [0, 0.5, 1], [15, 0, -15])
-//   const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1, 1.1])
-//   const textRotateX = useTransform(scrollYProgress, [0, 0.5, 1], [10, 0, -10])
-//   const parallaxY = useTransform(scrollYProgress, [0, 1], [0, -100])
-
-//   // Smooth spring animations
-//   const smoothRotateY = useSpring(imageRotateY, { stiffness: 100, damping: 30 })
-//   const smoothScale = useSpring(imageScale, { stiffness: 100, damping: 30 })
-//   const smoothRotateX = useSpring(textRotateX, { stiffness: 100, damping: 30 })
-
-//   const philosophyPoints = [
-//     {
-//       icon: <FaLeaf className="w-7 h-7" />,
-//       title: "Bahan Alami Terbaik",
-//       description:
-//         "Menyediakan makanan hewan peliharaan yang diformulasikan dari bahan-bahan alami berkualitas terbaik.",
-//       color: "from-ferrow-red-500 to-ferrow-red-600",
-//       bgColor: "bg-ferrow-red-500/10",
-//       borderColor: "border-ferrow-red-500/30",
-//       textColor: "text-ferrow-green-800",
-//     },
-//     {
-//       icon: <FaHeart className="w-7 h-7" />,
-//       title: "Kualitas Hidup Optimal",
-//       description:
-//         "Meningkatkan kualitas hidup anjing dan kucing melalui produk yang seimbang secara nutrisi dan bebas dari bahan kimia berbahaya.",
-//       color: "from-ferrow-red-500 to-ferrow-red-600",
-//       bgColor: "bg-ferrow-red-500/10",
-//       borderColor: "border-ferrow-red-500/30",
-//       textColor: "text-ferrow-green-800",
-//     },
-//     {
-//       icon: <FaGraduationCap className="w-7 h-7" />,
-//       title: "Edukasi Pemilik",
-//       description:
-//         "Memberikan edukasi kepada pemilik hewan tentang pentingnya nutrisi dalam menjaga kesehatan hewan peliharaan.",
-//       color: "from-ferrow-red-500 to-ferrow-red-600",
-//       bgColor: "bg-ferrow-red-500/10",
-//       borderColor: "border-ferrow-red-500/30",
-//       textColor: "text-ferrow-green-800",
-//     },
-//     {
-//       icon: <FaRecycle className="w-7 h-7" />,
-//       title: "Ramah Lingkungan",
-//       description: "Menjalankan proses produksi yang ramah lingkungan dan bertanggung jawab secara sosial.",
-//       color: "from-ferrow-red-500 to-ferrow-red-600",
-//       bgColor: "bg-ferrow-red-500/10",
-//       borderColor: "border-ferrow-red-500/30",
-//       textColor: "text-ferrow-green-800",
-//     },
-//     {
-//       icon: <FaLightbulb className="w-7 h-7" />,
-//       title: "Inovasi Berkelanjutan",
-//       description: "Berinovasi secara berkelanjutan untuk menjawab kebutuhan hewan peliharaan modern dan pemiliknya.",
-//       color: "from-ferrow-red-500 to-ferrow-red-600",
-//       bgColor: "bg-ferrow-red-500/10",
-//       borderColor: "border-ferrow-red-500/30",
-//       textColor: "text-ferrow-green-800",
-//     },
-//   ]
-
-//   return (
-//     <section
-//       id="philosophy"
-//       ref={ref}
-//       className="py-24 lg:py-32 bg-ferrow-cream-400 text-ferrow-green-800 relative overflow-hidden"
-//       style={{ perspective: "1000px" }}
-//     >
-//       {/* 3D Background Elements */}
-//       <motion.div style={{ y: parallaxY }} className="absolute inset-0 opacity-10">
-//         <div className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-ferrow-red-500 to-ferrow-red-600 rounded-full blur-3xl"></div>
-//         <div className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-r from-ferrow-yellow-400 to-ferrow-yellow-500 rounded-full blur-3xl"></div>
-//       </motion.div>
-
-//       {/* Floating 3D particles */}
-//       {[...Array(8)].map((_, i) => (
-//         <motion.div
-//           key={i}
-//           className="absolute w-3 h-3 bg-ferrow-red-500/20 rounded-full"
-//           style={{
-//             left: `${10 + i * 12}%`,
-//             top: `${15 + (i % 3) * 25}%`,
-//           }}
-//           animate={{
-//             y: [0, -40, 0],
-//             rotateX: [0, 360],
-//             rotateY: [0, 180],
-//             scale: [1, 1.5, 1],
-//           }}
-//           transition={{
-//             duration: 6 + i,
-//             repeat: Number.POSITIVE_INFINITY,
-//             delay: i * 0.8,
-//           }}
-//         />
-//       ))}
-
-//       <div className="container mx-auto px-4 lg:px-8 max-w-7xl relative z-10">
-//         {/* Section Header with 3D effect */}
-//         <motion.div
-//           initial={{ opacity: 0, rotateX: 20, y: 50 }}
-//           whileInView={{ opacity: 1, rotateX: 0, y: 0 }}
-//           transition={{ duration: 1, type: "spring", stiffness: 100 }}
-//           viewport={{ once: true }}
-//           className="text-center mb-20"
-//           style={{ transformStyle: "preserve-3d" }}
-//         >
-//           <motion.div
-//             className="inline-flex items-center px-6 py-3 bg-ferrow-green-800/10 border border-ferrow-green-800/20 rounded-full text-sm font-bold text-ferrow-green-800 mb-8 backdrop-blur-sm"
-//             whileHover={{ scale: 1.05, rotateY: 5 }}
-//           >
-//             <FaPaw className="mr-2 text-ferrow-red-500" />
-//             FILOSOFI & MISI KAMI
-//             <FaLeaf className="ml-2 text-ferrow-red-500" />
-//           </motion.div>
-
-//           <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-8 leading-tight">
-//             Filosofi <span className="text-ferrow-red-500">Alam Liar</span> Kami
-//           </h2>
-
-//           <p className="text-xl lg:text-2xl text-ferrow-green-800/80 max-w-4xl mx-auto leading-relaxed font-light">
-//             Terinspirasi oleh pola makan alami predator di alam liar, kami berkomitmen menciptakan produk terbaik untuk
-//             hewan kesayangan Anda dengan lima pilar utama yang menjadi fondasi bisnis kami.
-//           </p>
-//         </motion.div>
-
-//         {/* Main Content with Perfect Balance */}
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center mb-24">
-//           {/* 3D Image Column */}
-//           <motion.div
-//             initial={{ opacity: 0, rotateY: -30, x: -100 }}
-//             whileInView={{ opacity: 1, rotateY: 0, x: 0 }}
-//             transition={{ duration: 1.2, type: "spring", stiffness: 80 }}
-//             viewport={{ once: true }}
-//             style={{
-//               rotateY: smoothRotateY,
-//               scale: smoothScale,
-//               transformStyle: "preserve-3d",
-//             }}
-//             className="relative"
-//           >
-//             <div className="relative aspect-[5/4] rounded-3xl overflow-hidden group shadow-2xl">
-//               {/* Multiple 3D layers */}
-//               <div className="absolute inset-0 bg-gradient-to-t from-ferrow-green-800/60 via-transparent to-transparent z-30 rounded-3xl"></div>
-//               <div className="absolute inset-0 bg-gradient-to-br from-ferrow-red-500/20 via-transparent to-ferrow-yellow-400/20 z-20 rounded-3xl"></div>
-
-//               <motion.div
-//                 className="absolute inset-0 transform-gpu"
-//                 whileHover={{ scale: 1.05, rotateY: 5 }}
-//                 transition={{ duration: 0.6 }}
-//               >
-//                 <Image
-//                   src="/images/hero-bg.jpg"
-//                   alt="Filosofi Alam Liar"
-//                   fill
-//                   className="object-cover rounded-3xl transition-all duration-700 group-hover:brightness-110"
-//                   sizes="(max-width: 768px) 100vw, 50vw"
-//                   priority
-//                 />
-//               </motion.div>
-
-//               {/* 3D Floating Elements */}
-//               <motion.div
-//                 className="absolute top-8 left-8 z-40 w-20 h-20 bg-ferrow-cream-400/20 backdrop-blur-xl border border-ferrow-red-500/30 rounded-2xl flex items-center justify-center shadow-lg"
-//                 animate={{
-//                   y: [0, -15, 0],
-//                   rotateZ: [0, 5, 0],
-//                   scale: [1, 1.1, 1],
-//                 }}
-//                 transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
-//                 whileHover={{ scale: 1.3, rotateZ: 15 }}
-//               >
-//                 <FaPaw className="text-ferrow-red-500 text-2xl" />
-//               </motion.div>
-
-//               <motion.div
-//                 className="absolute bottom-8 right-8 z-40 w-16 h-16 bg-ferrow-cream-400/20 backdrop-blur-xl border border-ferrow-yellow-400/30 rounded-full flex items-center justify-center shadow-lg"
-//                 animate={{
-//                   y: [0, 10, 0],
-//                   rotateZ: [0, -10, 0],
-//                   scale: [1, 1.05, 1],
-//                 }}
-//                 transition={{ duration: 5, repeat: Number.POSITIVE_INFINITY, delay: 1 }}
-//                 whileHover={{ scale: 1.2, rotateZ: -20 }}
-//               >
-//                 <FaLeaf className="text-ferrow-yellow-400 text-xl" />
-//               </motion.div>
-
-//               {/* 3D Border Effect */}
-//               <div className="absolute inset-0 rounded-3xl border-2 border-ferrow-red-500/30 group-hover:border-ferrow-red-500/50 transition-all duration-500"></div>
-//             </div>
-
-//             {/* 3D Shadow */}
-//             <div className="absolute -bottom-8 left-8 right-8 h-8 bg-ferrow-green-800/20 blur-xl rounded-full transform scale-90"></div>
-//           </motion.div>
-
-//           {/* Content Column with 3D Text */}
-//           <motion.div
-//             initial={{ opacity: 0, rotateX: 20, x: 100 }}
-//             whileInView={{ opacity: 1, rotateX: 0, x: 0 }}
-//             transition={{ duration: 1, type: "spring", stiffness: 80, delay: 0.2 }}
-//             viewport={{ once: true }}
-//             style={{
-//               rotateX: smoothRotateX,
-//               transformStyle: "preserve-3d",
-//             }}
-//             className="space-y-8"
-//           >
-//             <div className="space-y-6">
-//               <h3 className="text-3xl lg:text-4xl font-bold text-ferrow-green-800 leading-tight">
-//                 Komitmen Kami untuk <span className="text-ferrow-red-500">Kesehatan Optimal</span>
-//               </h3>
-
-//               <p className="text-lg text-ferrow-green-800/90 leading-relaxed">
-//                 Di <span className="font-bold text-ferrow-red-500">Ferrow</span>, kami memahami bahwa setiap hewan
-//                 peliharaan memiliki kebutuhan nutrisi yang unik. Oleh karena itu, kami mengembangkan produk dengan
-//                 pendekatan holistik yang menggabungkan ilmu pengetahuan modern dengan wisdom alam.
-//               </p>
-
-//               <p className="text-ferrow-green-800/80 leading-relaxed">
-//                 Setiap formula kami dirancang dengan teliti, menggunakan protein hewani berkualitas tinggi sebagai bahan
-//                 utama, dilengkapi dengan vitamin, mineral, dan nutrisi penting lainnya yang dibutuhkan untuk mendukung
-//                 kehidupan yang sehat dan bahagia.
-//               </p>
-//             </div>
-
-//             {/* Key Statistics with 3D effect */}
-//             <div className="grid grid-cols-2 gap-6">
-//               {[
-//                 { number: "100%", label: "Bahan Alami" },
-//                 { number: "0%", label: "Pengawet Buatan" },
-//                 { number: "15+", label: "Tahun Pengalaman" },
-//                 { number: "50K+", label: "Hewan Sehat" },
-//               ].map((stat, index) => (
-//                 <motion.div
-//                   key={index}
-//                   className="text-center p-4 bg-ferrow-cream-400/30 backdrop-blur-sm border border-ferrow-yellow-400/20 rounded-xl"
-//                   whileHover={{ scale: 1.05, rotateY: 5 }}
-//                   transition={{ duration: 0.3 }}
-//                 >
-//                   <div className="text-2xl lg:text-3xl font-bold text-ferrow-red-500 mb-1">{stat.number}</div>
-//                   <div className="text-sm text-ferrow-green-800/70">{stat.label}</div>
-//                 </motion.div>
-//               ))}
-//             </div>
-//           </motion.div>
-//         </div>
-
-//         {/* Philosophy Points Grid with 3D Cards */}
-//         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 lg:gap-8">
-//           {philosophyPoints.map((point, index) => (
-//             <motion.div
-//               key={index}
-//               initial={{ opacity: 0, rotateX: 45, y: 100 }}
-//               whileInView={{ opacity: 1, rotateX: 0, y: 0 }}
-//               transition={{ duration: 0.8, delay: index * 0.1, type: "spring", stiffness: 100 }}
-//               viewport={{ once: true }}
-//               onMouseEnter={() => setHoveredCard(index)}
-//               onMouseLeave={() => setHoveredCard(null)}
-//               className={`group relative ${point.bgColor} backdrop-blur-sm border ${point.borderColor} rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:scale-105 hover:-translate-y-4 cursor-pointer`}
-//               style={{
-//                 transformStyle: "preserve-3d",
-//                 transform: hoveredCard === index ? "rotateY(5deg) rotateX(-5deg)" : "rotateY(0deg) rotateX(0deg)",
-//               }}
-//               whileHover={{
-//                 rotateY: 5,
-//                 rotateX: -5,
-//                 scale: 1.05,
-//                 y: -16,
-//               }}
-//             >
-//               {/* 3D Icon Container */}
-//               <motion.div
-//                 className={`w-16 h-16 bg-gradient-to-r ${point.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg relative`}
-//                 whileHover={{ rotateY: 180, scale: 1.1 }}
-//                 transition={{ duration: 0.6 }}
-//                 style={{ transformStyle: "preserve-3d" }}
-//               >
-//                 <div className="text-white relative z-10">{point.icon}</div>
-//                 <div className="absolute inset-0 bg-white/20 rounded-2xl blur-sm"></div>
-//               </motion.div>
-
-//               {/* Content */}
-//               <h3
-//                 className={`text-xl lg:text-2xl font-bold ${point.textColor} mb-4 group-hover:text-ferrow-red-500 transition-colors duration-300`}
-//               >
-//                 {point.title}
-//               </h3>
-
-//               <p className="text-ferrow-green-800/80 leading-relaxed text-sm lg:text-base group-hover:text-ferrow-green-800/95 transition-colors duration-300">
-//                 {point.description}
-//               </p>
-
-//               {/* 3D Hover Indicator */}
-//               <motion.div
-//                 className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gradient-to-r from-ferrow-red-500 to-ferrow-red-600 rounded-full"
-//                 initial={{ scaleX: 0, opacity: 0 }}
-//                 animate={{
-//                   scaleX: hoveredCard === index ? 1 : 0,
-//                   opacity: hoveredCard === index ? 1 : 0,
-//                 }}
-//                 transition={{ duration: 0.3 }}
-//               />
-
-//               {/* 3D Shadow */}
-//               <div className="absolute -bottom-4 left-4 right-4 h-4 bg-ferrow-green-800/10 blur-lg rounded-full transform scale-75 group-hover:scale-90 transition-transform duration-500"></div>
-//             </motion.div>
-//           ))}
-//         </div>
-
-//         {/* Enhanced Call to Action with 3D effect */}
-//         <motion.div
-//           initial={{ opacity: 0, rotateX: 30, y: 50 }}
-//           whileInView={{ opacity: 1, rotateX: 0, y: 0 }}
-//           transition={{ duration: 0.8, delay: 0.5 }}
-//           viewport={{ once: true }}
-//           className="text-center mt-20"
-//         >
-//           <Link href="/products">
-//             <motion.button
-//               className="group relative px-10 py-5 bg-gradient-to-r from-ferrow-red-500 to-ferrow-red-600 text-ferrow-cream-400 font-bold text-lg rounded-2xl overflow-hidden shadow-2xl"
-//               whileHover={{ scale: 1.05, rotateY: 5 }}
-//               whileTap={{ scale: 0.95 }}
-//               style={{ transformStyle: "preserve-3d" }}
-//             >
-//               <span className="relative z-10 flex items-center">
-//                 Jelajahi Produk Kami
-//                 <motion.svg
-//                   className="w-6 h-6 ml-3"
-//                   fill="none"
-//                   stroke="currentColor"
-//                   viewBox="0 0 24 24"
-//                   animate={{ x: [0, 5, 0] }}
-//                   transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-//                 >
-//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-//                 </motion.svg>
-//               </span>
-
-//               {/* 3D Button Effect */}
-//               <motion.div
-//                 className="absolute inset-0 bg-white/20 rounded-2xl"
-//                 initial={{ rotateY: -90, opacity: 0 }}
-//                 whileHover={{ rotateY: 0, opacity: 1 }}
-//                 transition={{ duration: 0.4 }}
-//               />
-//             </motion.button>
-//           </Link>
-//         </motion.div>
-//       </div>
-//     </section>
-//   )
-// }
-
-// export default Philosophy
+export default Philosophy

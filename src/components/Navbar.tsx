@@ -11,7 +11,7 @@ import { usePathname } from 'next/navigation';
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { cartCount } = useCart();
+  const { subTotal } = useCart();
   const pathname = usePathname();
   
   useEffect(() => {
@@ -136,12 +136,12 @@ const Navbar = () => {
               whileTap={{ scale: 0.9 }}
             >
               <FaShoppingCart className="text-2xl" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }} />
-              {cartCount > 0 && (
+              {subTotal > 0 && (
                 <span 
                   className="absolute -top-1 -right-1 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full"
                   style={{ backgroundColor: '#A53410' }}
                 >
-                  {cartCount}
+                  {subTotal}
                 </span>
               )}
             </motion.div>

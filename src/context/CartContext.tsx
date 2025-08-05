@@ -1,6 +1,6 @@
 "use client"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
-interface CartItem {
+export interface CartItem {
   id: string // This should be UUID string
   name: string
   price: number
@@ -16,7 +16,7 @@ interface CartContextType {
   removeFromCart: (id: string) => void
   updateQuantity: (id: string, quantity: number) => void
   clearCart: () => void
-  subtotal: number
+  subTotal: number
   shipping: number
   total: number
 }
@@ -64,9 +64,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCartItems([])
     localStorage.removeItem("ferrow-cart")
   }
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = subtotal > 100000 ? 0 : 15000 // Free shipping over 100k
-  const total = subtotal + shipping
+  const subTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const shipping = subTotal > 100000 ? 0 : 15000 // Free shipping over 100k
+  const total = subTotal + shipping
   return (
     <CartContext.Provider
       value={{
@@ -75,7 +75,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         removeFromCart,
         updateQuantity,
         clearCart,
-        subtotal,
+        subTotal,
         shipping,
         total,
       }}

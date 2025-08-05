@@ -177,7 +177,9 @@ export default function Orders() {
           <Footer />
         </main>
 
-        <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} />
+        <LoginModal isOpen={isLoginModalOpen} onClose={() => setIsLoginModalOpen(false)} onSuccess={function (): void {
+          throw new Error("Function not implemented.")
+        } } />
       </>
     )
   }
