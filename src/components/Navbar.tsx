@@ -74,16 +74,16 @@ useEffect(() => {
           
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="/" className="text-1xl md:text-1xl hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
               Beranda
             </Link>
-            <Link href="/products" className="hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="/products" className="text-1xl md:text-1xl hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
               Produk
             </Link>
-            <Link href="#philosophy" className="hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="#philosophy" className="text-1xl md:text-1xl hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
               Filosofi
             </Link>
-            <Link href="#faq" className="hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="#faq" className="text-1xl md:text-1xl hover:text-ferrow-yellow-400 transition-colors animated-underline" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
               FAQ
             </Link>
           </nav>
@@ -95,7 +95,7 @@ useEffect(() => {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
-              <FaShoppingCart className="text-xl" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }} />
+              <FaShoppingCart className="text-2xl" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }} />
               {cartCount > 0 && (
                 <span 
                   className="absolute -top-1 -right-1 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full"

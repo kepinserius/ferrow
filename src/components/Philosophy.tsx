@@ -49,7 +49,7 @@ const Philosophy = () => {
               className="absolute inset-0"
             >
               <Image
-                src="/images/hero-bg.jpg"
+                src="/images/pilosopi.jpg"
                 alt="Filosofi Alam Liar"
                 fill
                 className="object-cover rounded-2xl transition-transform duration-1000 group-hover:scale-105"
