@@ -188,7 +188,7 @@ export default function AdminSettingsPage() {
           <div className="px-6 py-4 border-b border-gray-200">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 rounded-lg">
-                <SettingsIcon className="h-5 w-5 text-green-600" />
+                <SettingsIcon className="h-5 w-5 text-[#A53410]" />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Profile Settings</h2>
@@ -205,11 +205,11 @@ export default function AdminSettingsPage() {
                 }`}
               >
                 {message.type === "success" ? (
-                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                  <CheckCircle className="h-5 w-5 text-[#A53410] flex-shrink-0" />
                 ) : (
                   <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                 )}
-                <p className={`text-sm ${message.type === "success" ? "text-green-700" : "text-red-700"}`}>
+                <p className={`text-sm ${message.type === "success" ? "text-[#A53410]" : "text-red-700"}`}>
                   {message.text}
                 </p>
               </div>
@@ -354,7 +354,7 @@ export default function AdminSettingsPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="inline-flex items-center gap-2 px-6 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-2 bg-[#A53410] text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {isLoading ? (
                   <>

@@ -353,7 +353,7 @@ export default function OrdersPage() {
                   <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                   Refresh
                 </button>
-                <button className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                <button className="inline-flex items-center gap-2 px-4 py-2 bg-[#A53410] text-white rounded-lg hover:bg-[#A53410]/90 focus:outline-none focus:ring-2 focus:ring-[#A53410] focus:ring-offset-2 transition-colors">
                   <Download className="h-4 w-4" />
                   Export
                 </button>

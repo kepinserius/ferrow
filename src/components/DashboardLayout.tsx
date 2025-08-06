@@ -36,7 +36,7 @@ export default function DashboardLayout({ children, activeTab = "dashboard" }: D
         <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white">
           <div className="flex h-16 items-center justify-between px-4 border-b border-gray-200">
             <div className="flex items-center gap-2">
-              <Package className="h-8 w-8 text-green-600" />
+              <Package className="h-8 w-8 text-[#A53410]" />
               <span className="text-xl font-bold text-gray-900">Ferrow Admin</span>
             </div>
             <button
@@ -55,7 +55,7 @@ export default function DashboardLayout({ children, activeTab = "dashboard" }: D
                   key={item.name}
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive ? "bg-green-100 text-green-700" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    isActive ? "bg-green-100 text-[#A53410]" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   }`}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -68,7 +68,7 @@ export default function DashboardLayout({ children, activeTab = "dashboard" }: D
           <div className="border-t border-gray-200 p-4">
             <div className="flex items-center gap-3 mb-3">
               <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium text-green-700">{admin?.username?.charAt(0).toUpperCase()}</span>
+                <span className="text-sm font-medium text-[#A53410]">{admin?.username?.charAt(0).toUpperCase()}</span>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-900">{admin?.username}</p>
@@ -91,7 +91,7 @@ export default function DashboardLayout({ children, activeTab = "dashboard" }: D
         <div className="flex flex-col flex-1 bg-white border-r border-gray-200">
           <div className="flex h-16 items-center px-4 border-b border-gray-200">
             <div className="flex items-center gap-2">
-              <Package className="h-8 w-8 text-green-600" />
+              <Package className="h-8 w-8 text-[#A53410]" />
               <span className="text-xl font-bold text-gray-900">Pet Store</span>
             </div>
           </div>
@@ -104,7 +104,7 @@ export default function DashboardLayout({ children, activeTab = "dashboard" }: D
                   key={item.name}
                   href={item.href}
                   className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive ? "bg-green-100 text-green-700" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    isActive ? "bg-[#A53410]/10 text-[#A53410]" : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -115,8 +115,8 @@ export default function DashboardLayout({ children, activeTab = "dashboard" }: D
           </nav>
           <div className="border-t border-gray-200 p-4">
             <div className="flex items-center gap-3 mb-3">
-              <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
-                <span className="text-sm font-medium text-green-700">{admin?.username?.charAt(0).toUpperCase()}</span>
+              <div className="h-8 w-8 bg-[#A53410]/10 rounded-full flex items-center justify-center">
+                <span className="text-sm font-medium text-[#A53410]">{admin?.username?.charAt(0).toUpperCase()}</span>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-900">{admin?.username}</p>

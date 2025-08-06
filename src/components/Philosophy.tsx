@@ -36,7 +36,7 @@ const Philosophy = () => {
             </div>
             <h2 className="text-5xl lg:text-7xl font-display font-bold text-ferrow-green-800 mb-6">
               <span className="block">FUEL THE</span>
-              <span className="text-gradient bg-gradient-to-r from-ferrow-green-600 to-ferrow-green-500 bg-clip-text text-transparent">
+              <span style={{color: '#F8F8F8'}}>
                 WILD
               </span>
             </h2>
