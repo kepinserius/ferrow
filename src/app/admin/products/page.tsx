@@ -180,7 +180,7 @@ export default function ProductListPage() {
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => router.push("/admin/dashboard")}
-                className="flex items-center space-x-2 text-green-600 hover:text-green-800 transition-colors"
+                className="flex items-center space-x-2 text-[#A53410] hover:text-[#A53410] transition-colors"
               >
                 <ArrowLeft className="h-5 w-5" />
                 <span>Back to Dashboard</span>
@@ -223,9 +223,9 @@ export default function ProductListPage() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">Products</h1>
             <p className="text-gray-600">Manage your product inventory and pricing</p>
           </div>
-          <button
+         <button
             onClick={() => router.push("/admin/products/new")}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-green-800 text-yellow-100 text-sm font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#A53410] text-yellow-100 text-sm font-medium rounded-md hover:bg-[#A53410]/90 focus:outline-none focus:ring-2 focus:ring-[#A53410] focus:ring-offset-2 transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add Product
