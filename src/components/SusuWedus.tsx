@@ -53,7 +53,7 @@ const GoatMilkHero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
             >
-              <h1 className="text-5xl lg:text-6xl font-display text-ferrow-green-800 leading-tight">
+              <h1 className="text-5xl lg:text-6xl font-display text-[#F8F8F8] leading-tight">
                 Makanan anjing & kucing yang <span className="italic text-ferrow-green-600 font-script">sehat</span>
               </h1>
             </motion.div>
@@ -64,7 +64,7 @@ const GoatMilkHero = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
-              <h2 className="text-xl lg:text-2xl font-semibold text-ferrow-green-700 mb-4">
+              <h2 className="text-xl lg:text-2xl font-semibold text-[#F8F8F8] mb-4">
                 Diperkaya susu domba & kambing berkualitas tinggi untuk nutrisi optimal hewan kesayangan
               </h2>
             </motion.div>
@@ -76,11 +76,11 @@ const GoatMilkHero = () => {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="space-y-4"
             >
-              <p className="text-ferrow-green-700 text-lg leading-relaxed">
+              <p className="text-[#F8F8F8] text-lg leading-relaxed">
                 Susu domba dan kambing mengandung protein berkualitas tinggi, kalsium, dan nutrisi penting yang mudah
                 dicerna untuk kesehatan optimal anjing dan kucing Anda.
               </p>
-              <p className="text-ferrow-green-700 text-lg leading-relaxed">
+              <p className="text-[#F8F8F8] text-lg leading-relaxed">
                 Dengan pengalaman bertahun-tahun dalam nutrisi hewan, kami menghadirkan formula premium yang
                 menggabungkan bahan alami terbaik untuk mendukung pertumbuhan dan kesehatan hewan kesayangan.
               </p>

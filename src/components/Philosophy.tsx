@@ -29,7 +29,7 @@ const Philosophy = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <div className="mb-6">
-              <span className="inline-flex items-center gap-2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full text-sm font-medium text-ferrow-green-800 border border-ferrow-yellow-400/50">
+              <span className="inline-flex items-center gap-2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full text-sm font-medium text-[#F8F8F8] border border-ferrow-yellow-400/50">
                 <GiWolfHowl className="w-5 h-5" />
                 Filosofi FERROW
               </span>
@@ -153,10 +153,10 @@ const Philosophy = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
             viewport={{ once: true }}
-            className="text-5xl lg:text-7xl font-display font-bold text-ferrow-green-800 mb-6"
+            className="text-5xl lg:text-7xl font-display font-bold text-[#F8F8F8] mb-6"
           >
             <span className="block">FUEL THE</span>
-            <span className="text-gradient bg-gradient-to-r from-ferrow-green-600 to-ferrow-green-500 bg-clip-text text-transparent">
+            <span className=" bg-clip-text text-[#F8F8F8]">
               WILD
             </span>
           </motion.h2>
@@ -166,7 +166,7 @@ const Philosophy = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
             viewport={{ once: true }}
-            className="text-xl text-ferrow-green-700 max-w-3xl mx-auto leading-relaxed"
+            className="text-xl text-[#F8F8F8] max-w-3xl mx-auto leading-relaxed"
           >
             Menghidupkan naluri alami hewan kesayangan dengan nutrisi premium yang terinspirasi dari alam liar
           </motion.p>
@@ -188,7 +188,7 @@ const Philosophy = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
-                className="text-3xl font-bold text-ferrow-green-800"
+                className="text-3xl font-bold text-[#F8F8F8]"
               >
                 Passion & Kepedulian untuk Keluarga Berbulu
               </motion.h3>
@@ -198,16 +198,16 @@ const Philosophy = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
                 viewport={{ once: true }}
-                className="space-y-4 text-ferrow-green-700 text-lg leading-relaxed"
+                className="space-y-4 text-[#F8F8F8] text-lg leading-relaxed"
               >
                 <p>
-                  <strong className="text-ferrow-green-800">FERROW</strong> adalah brand makanan anjing dan kucing yang
+                  <strong className="text-[#F8F8F8]">FERROW</strong> adalah brand makanan anjing dan kucing yang
                   lahir dari passion dan kepedulian terhadap hewan peliharaan. Kami percaya bahwa hewan adalah bagian
                   dari keluarga yang layak mendapatkan perawatan terbaik.
                 </p>
                 <p>
                   Oleh karena itu, kami menghadirkan produk yang tidak hanya sekedar makanan atau camilan biasa, tetapi
-                  memiliki <strong className="text-ferrow-green-800">added value</strong> yang memberikan manfaat lebih
+                  memiliki <strong className="text-[#F8F8F8]">added value</strong> yang memberikan manfaat lebih
                   bagi kesehatan dan kesejahteraan mereka.
                 </p>
               </motion.div>
@@ -232,7 +232,7 @@ const Philosophy = () => {
                   </div>
                   <h4 className="font-bold text-ferrow-green-800">Keluarga</h4>
                 </div>
-                <p className="text-ferrow-green-700 text-sm">
+                <p className="text-ferrow-green-800 text-sm">
                   Hewan adalah bagian dari keluarga yang berhak mendapat yang terbaik
                 </p>
               </motion.div>
@@ -248,7 +248,7 @@ const Philosophy = () => {
                   </div>
                   <h4 className="font-bold text-ferrow-green-800">Premium</h4>
                 </div>
-                <p className="text-ferrow-green-700 text-sm">Kualitas terbaik dengan superfood dan nutrisi optimal</p>
+                <p className="text-ferrow-green-800 text-sm">Kualitas terbaik dengan superfood dan nutrisi optimal</p>
               </motion.div>
 
               <motion.div 
@@ -326,8 +326,8 @@ const Philosophy = () => {
           className="mb-16"
         >
           <div className="text-center mb-12">
-            <h3 className="text-4xl font-bold text-ferrow-green-800 mb-4">Superfood dengan Manfaat Khusus</h3>
-            <p className="text-xl text-ferrow-green-700 max-w-3xl mx-auto">
+            <h3 className="text-4xl font-bold text-[#F8F8F8] mb-4">Superfood dengan Manfaat Khusus</h3>
+            <p className="text-xl text-[#F8F8F8] max-w-3xl mx-auto">
               Berbeda dari produk lain, FERROW mengandung superfood dengan manfaat khusus yang memberikan solusi nyata
               untuk kesehatan hewan kesayangan
             </p>
