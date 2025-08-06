@@ -69,7 +69,7 @@ const Philosophy = () => {
 
   return (
 
-    <section ref={ref} className="relative py-20 bg-ferrow-cream-400 overflow-hidden">
+    <section ref={ref} className="relative py-20 bg-[#A53410] overflow-hidden">
       {/* Background Elements - Simple animations without scroll-based transforms */}
       <div className="absolute inset-0">
         <motion.div
@@ -402,6 +402,5 @@ const Philosophy = () => {
     </section>
   )
 }
-
 export default Philosophy
 

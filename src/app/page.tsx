@@ -49,7 +49,6 @@ export default function Home() {
       <Products />
       <SusuWedus />
       <FAQ />
-      <Newsletter />
       <CallToAction />
       <Footer />
       <ScrollToTop />

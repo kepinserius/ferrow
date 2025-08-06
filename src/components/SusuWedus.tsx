@@ -18,7 +18,7 @@ const GoatMilkHero = () => {
   }
 
   return (
-    <section className="relative min-h-screen bg-ferrow-cream-400 overflow-hidden">
+    <section className="relative min-h-screen bg-[#A53410] overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-20 left-20 w-32 h-32 rounded-full bg-ferrow-green-500" />
