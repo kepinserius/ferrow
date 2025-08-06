@@ -68,6 +68,7 @@ const Philosophy = () => {
   ]
 
   return (
+
     <section ref={ref} className="relative py-20 bg-ferrow-cream-400 overflow-hidden">
       {/* Background Elements - Simple animations without scroll-based transforms */}
       <div className="absolute inset-0">
@@ -125,7 +126,6 @@ const Philosophy = () => {
           <GiWolfHowl className="w-24 h-24 text-ferrow-green-500" />
         </motion.div>
       </div>
-
       <div className="container mx-auto px-4 relative z-10">
         {/* Header Section */}
         <motion.div
@@ -404,3 +404,4 @@ const Philosophy = () => {
 }
 
 export default Philosophy
+

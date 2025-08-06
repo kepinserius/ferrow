@@ -46,7 +46,7 @@ const Navbar = () => {
     <motion.header
       className="fixed top-0 left-0 w-full z-50 transition-all duration-300"
       style={{ 
-        backgroundColor: isScrolled ? '#A68A64' : 'transparent',
+        backgroundColor: isScrolled ? 'transparent' : 'transparent',
         backdropFilter: 'blur(2px)',
         padding: isScrolled ? '0.5rem 0' : '1rem 0',
         boxShadow: isScrolled ? '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' : 'none'
@@ -96,34 +96,21 @@ const Navbar = () => {
                   />
                 </div>
               </div>
-              
-              {/* Glow Effect */}
-              <div 
-                className="absolute inset-0 rounded-xl opacity-20 animate-pulse"
-                style={{ 
-                  backgroundColor: isScrolled ? '#EAD49C' : '#A68A64',
-                  filter: 'blur(8px)',
-                  top: '-10px',
-                  bottom: '-10px',
-                  left: '-14px',
-                  right: '-14px'
-                }}
-              />
             </motion.div>
           </Link>
           
           {/* Desktop Navigation - Centered */}
           <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2" style={{ fontFamily: "'AKKO', 'Montserrat', 'Inter', sans-serif" }}>
-            <Link href="/" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="/" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#F8F8F8' }}>
               Beranda
             </Link>
-            <Link href="/products" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="/products" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#F8F8F8' }}>
               Produk
             </Link>
-            <Link href="#philosophy" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="#philosophy" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#F8F8F8' }}>
               Filosofi
             </Link>
-            <Link href="#faq" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#FFFFFF' }}>
+            <Link href="#faq" className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide" style={{ color: isScrolled ? '#333A2D' : '#F8F8F8' }}>
               FAQ
             </Link>
           </nav>

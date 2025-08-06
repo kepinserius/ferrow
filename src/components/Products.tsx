@@ -4,7 +4,7 @@ import { motion, useInView } from "framer-motion"
 import { useRef, useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { FaShoppingCart, FaInfoCircle, FaStar } from "react-icons/fa"
+import { FaShoppingCart, FaInfoCircle, FaStar, FaChevronLeft, FaChevronRight, FaPause, FaPlay } from "react-icons/fa"
 import { supabase } from "@/lib/supabaseClient"
 
 interface Product {
@@ -37,6 +37,46 @@ const Products = () => {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // Carousel states
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [itemsPerView, setItemsPerView] = useState(4)
+  
+  // Auto-slide interval
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    
+    if (isAutoPlaying && products.length > 0) {
+      interval = setInterval(() => {
+        setCurrentIndex(prev => {
+          const maxIndex = Math.max(0, products.length - itemsPerView)
+          return prev >= maxIndex ? 0 : prev + 1
+        })
+      }, 3000) // Auto slide every 3 seconds
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [isAutoPlaying, products.length, itemsPerView])
+
+  // Responsive items per view
+  useEffect(() => {
+    const updateItemsPerView = () => {
+      if (window.innerWidth >= 1024) {
+        setItemsPerView(4) // lg: 4 items
+      } else if (window.innerWidth >= 768) {
+        setItemsPerView(2) // md: 2 items
+      } else {
+        setItemsPerView(1) // sm: 1 item
+      }
+    }
+
+    updateItemsPerView()
+    window.addEventListener('resize', updateItemsPerView)
+    return () => window.removeEventListener('resize', updateItemsPerView)
+  }, [])
 
   useEffect(() => {
     fetchProducts()
@@ -90,7 +130,7 @@ const Products = () => {
       `)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
-        .limit(8)
+        .limit(12) // Increased limit for carousel
 
       if (error) throw error
 
@@ -101,7 +141,7 @@ const Products = () => {
           description:
             product.description ||
             `Premium ${product.category.toLowerCase()} product with high-quality ingredients for optimal nutrition.`,
-          rating: product.rating || 4.5 + Math.random() * 0.4, // Use existing rating or generate random one
+          rating: product.rating || 4.5 + Math.random() * 0.4,
         })) || []
 
       setProducts(productsWithDefaults)
@@ -131,13 +171,32 @@ const Products = () => {
     return categoryMap[category] || category
   }
 
+  // Carousel navigation functions
+  const goToPrevious = () => {
+    setCurrentIndex(prev => prev === 0 ? Math.max(0, products.length - itemsPerView) : prev - 1)
+  }
+
+  const goToNext = () => {
+    const maxIndex = Math.max(0, products.length - itemsPerView)
+    setCurrentIndex(prev => prev >= maxIndex ? 0 : prev + 1)
+  }
+
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index)
+  }
+
+  const toggleAutoPlay = () => {
+    setIsAutoPlaying(!isAutoPlaying)
+  }
+
   // Loading skeleton
   const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-      {[...Array(4)].map((_, index) => (
+    <div className="flex gap-6">
+      {[...Array(itemsPerView)].map((_, index) => (
         <div
           key={index}
-          className="glass rounded-2xl overflow-hidden shadow-lg h-full border border-ferrow-yellow-400/30"
+          className="glass rounded-2xl overflow-hidden shadow-lg h-full border border-ferrow-yellow-400/30 flex-shrink-0"
+          style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 1.5}rem / ${itemsPerView})` }}
         >
           <div className="relative h-64 bg-gray-200 animate-pulse"></div>
           <div className="p-6 space-y-4">
@@ -182,6 +241,8 @@ const Products = () => {
       <p className="text-ferrow-green-800/70">Produk akan segera tersedia. Silakan kembali lagi nanti.</p>
     </div>
   )
+
+  const maxIndex = Math.max(0, products.length - itemsPerView)
 
   return (
     <section id="products" className="py-24 bg-ferrow-cream-400 relative overflow-hidden">
@@ -232,8 +293,8 @@ const Products = () => {
           </motion.p>
         </div>
 
-        {/* Product Grid - Modern Design */}
-        <div ref={ref}>
+        {/* Product Carousel */}
+        <div ref={ref} className="relative">
           {loading ? (
             <LoadingSkeleton />
           ) : error ? (
@@ -241,162 +302,200 @@ const Products = () => {
           ) : products.length === 0 ? (
             <EmptyState />
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {products.map((product, index) => (
-                <motion.div
-                  key={product.id}
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                  transition={{ duration: 0.5, delay: 0.1 * index }}
-                  className="group glass rounded-2xl overflow-hidden shadow-lg hover-card h-full border border-ferrow-yellow-400/30"
-                  onMouseEnter={() => setHoveredId(product.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                >
-                  <Link href={`/products/${product.id}`} className="block">
-                    <div className="relative h-64 overflow-hidden">
-                      <Image
-                        src={product.image_url || "/placeholder.svg?height=256&width=256&query=pet food package"}
-                        alt={product.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
-                        priority={index < 2}
-                      />
+            <div className="overflow-hidden">
+              <motion.div
+                className="flex gap-6"
+                animate={{
+                  x: `calc(-${currentIndex * (100 / itemsPerView)}% - ${currentIndex * 1.5}rem)`
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 10
+                }}
+                onMouseEnter={() => setIsAutoPlaying(false)}
+                onMouseLeave={() => setIsAutoPlaying(true)}
+              >
+                {products.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                    transition={{ duration: 0.5, delay: 0.05 * index }}
+                    className="group glass rounded-2xl overflow-hidden shadow-lg hover-card h-full border border-ferrow-yellow-400/30 flex-shrink-0"
+                    style={{
+                      flex: `0 0 ${100 / itemsPerView}%`,
+                      maxWidth: `${100 / itemsPerView}%`
+                    }}
+                    onMouseEnter={() => setHoveredId(product.id)}
+                    onMouseLeave={() => setHoveredId(null)}
+                  >
+                    <Link href={`/products/${product.id}`} className="block">
+                      <div className="relative h-64 overflow-hidden">
+                        <Image
+                          src={product.image_url || "/placeholder.svg?height=256&width=256&query=pet food package"}
+                          alt={product.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                          className="object-cover transition-transform duration-700 ease-in-out group-hover:scale-110"
+                          priority={index < itemsPerView}
+                        />
 
-                      {/* Category badge */}
-                      <motion.div
-                        className="absolute top-4 left-4 glass text-ferrow-green-800 text-sm font-bold px-3 py-1 rounded-full border border-ferrow-yellow-400/30"
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        {getCategoryInIndonesian(product.category)}
-                      </motion.div>
-
-                      {/* Product Code */}
-                      <div className="absolute top-4 right-4 glass text-ferrow-green-800 text-xs font-mono px-2 py-1 rounded border border-ferrow-yellow-400/30">
-                        {product.code}
-                      </div>
-
-                      {/* Rating */}
-                      <div className="absolute bottom-4 left-4 flex items-center bg-white/60 backdrop-blur-sm px-2 py-1 rounded-full">
-                        <FaStar className="text-ferrow-red-500 mr-1" />
-                        <span className="text-ferrow-green-800 text-sm">{product.rating?.toFixed(1)}</span>
-                      </div>
-
-                      {/* Stock indicator */}
-                      {product.stock < 10 && product.stock > 0 && (
-                        <div className="absolute bottom-4 right-4 bg-ferrow-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                          Stok Terbatas
-                        </div>
-                      )}
-
-                      {product.stock === 0 && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="text-white font-bold text-lg">Stok Habis</span>
-                        </div>
-                      )}
-
-                      {/* Nutrition info overlay on hover */}
-                      {hoveredId === product.id && product.protein && (
+                        {/* Category badge */}
                         <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="absolute inset-0 bg-black/80 flex items-center justify-center p-4"
+                          className="absolute top-4 left-4 glass text-ferrow-green-800 text-sm font-bold px-3 py-1 rounded-full border border-ferrow-yellow-400/30"
+                          whileHover={{ scale: 1.05 }}
                         >
-                          <div className="text-white text-center">
-                            <h4 className="font-bold mb-2 text-sm">Nutrition Facts</h4>
-                            <div className="grid grid-cols-2 gap-1 text-xs">
-                              {product.protein && <div>Protein: {product.protein}%</div>}
-                              {product.fat && <div>Fat: {product.fat}%</div>}
-                              {product.fiber && <div>Fiber: {product.fiber}%</div>}
-                              {product.moisture && <div>Moisture: {product.moisture}%</div>}
-                            </div>
-                          </div>
+                          {getCategoryInIndonesian(product.category)}
                         </motion.div>
-                      )}
-                    </div>
-                  </Link>
 
-                  <div className="p-6">
-                    <Link href={`/products/${product.id}`}>
-                      <h3 className="text-xl font-bold text-ferrow-green-800 mb-2 group-hover:text-ferrow-red-500 transition-colors">
-                        {product.name}
-                      </h3>
-                    </Link>
+                        {/* Product Code */}
+                        <div className="absolute top-4 right-4 glass text-ferrow-green-800 text-xs font-mono px-2 py-1 rounded border border-ferrow-yellow-400/30">
+                          {product.code}
+                        </div>
 
-                    <p className="text-ferrow-green-800/70 mb-3 line-clamp-2 text-sm">{product.description}</p>
+                        {/* Rating */}
+                        <div className="absolute bottom-4 left-4 flex items-center bg-white/60 backdrop-blur-sm px-2 py-1 rounded-full">
+                          <FaStar className="text-ferrow-red-500 mr-1" />
+                          <span className="text-ferrow-green-800 text-sm">{product.rating?.toFixed(1)}</span>
+                        </div>
 
-                    {/* Health Benefits Preview */}
-                    {product.health_benefits && (
-                      <p className="text-ferrow-green-800/60 mb-3 line-clamp-1 text-xs italic">
-                        💚 {product.health_benefits.split(",")[0]}...
-                      </p>
-                    )}
+                        {/* Stock indicator */}
+                        {product.stock < 10 && product.stock > 0 && (
+                          <div className="absolute bottom-4 right-4 bg-ferrow-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                            Stok Terbatas
+                          </div>
+                        )}
 
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <span className="text-lg font-bold text-gradient">Rp {formatPrice(product.price)}</span>
-                        {product.protein && (
-                          <div className="text-xs text-ferrow-green-800/60 mt-1">Protein: {product.protein}%</div>
+                        {product.stock === 0 && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <span className="text-white font-bold text-lg">Stok Habis</span>
+                          </div>
+                        )}
+
+                        {/* Nutrition info overlay on hover */}
+                        {hoveredId === product.id && product.protein && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="absolute inset-0 bg-black/80 flex items-center justify-center p-4"
+                          >
+                            <div className="text-white text-center">
+                              <h4 className="font-bold mb-2 text-sm">Nutrition Facts</h4>
+                              <div className="grid grid-cols-2 gap-1 text-xs">
+                                {product.protein && <div>Protein: {product.protein}%</div>}
+                                {product.fat && <div>Fat: {product.fat}%</div>}
+                                {product.fiber && <div>Fiber: {product.fiber}%</div>}
+                                {product.moisture && <div>Moisture: {product.moisture}%</div>}
+                              </div>
+                            </div>
+                          </motion.div>
                         )}
                       </div>
+                    </Link>
 
-                      <div className="flex gap-2">
-                        <Link href={`/products/${product.id}`}>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="w-10 h-10 rounded-full glass flex items-center justify-center border border-ferrow-yellow-400/30 text-ferrow-green-800 hover:text-ferrow-red-500 transition-colors"
-                            aria-label="Lihat detail produk"
-                          >
-                            <FaInfoCircle />
-                          </motion.button>
-                        </Link>
+                    <div className="p-6 flex flex-col justify-between min-h-[260px] h-full">
+                      <Link href={`/products/${product.id}`}>
+                        <h3 className="text-xl font-bold text-ferrow-green-800 mb-2 group-hover:text-ferrow-red-500 transition-colors">
+                          {product.name}
+                        </h3>
+                      </Link>
 
-                        <Link href="/cart">
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            disabled={product.stock === 0}
-                            className="w-10 h-10 rounded-full bg-ferrow-green-800 flex items-center justify-center text-ferrow-yellow-400 hover:bg-ferrow-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            aria-label="Lihat keranjang"
-                          >
-                            <FaShoppingCart />
-                          </motion.button>
-                        </Link>
-                      </div>
-                    </div>
+                      <p className="text-ferrow-green-800/70 mb-3 line-clamp-2 text-sm">{product.description}</p>
 
-                    {/* Stock info */}
-                    <div className="mt-2 text-xs text-ferrow-green-800/60">
-                      {product.stock > 10
-                        ? "Stok tersedia"
-                        : product.stock > 0
-                          ? `Tersisa ${product.stock} item`
-                          : "Stok habis"}
-                    </div>
-
-                    {/* Ingredients preview */}
-                    {product.ingredients && (
-                      <div className="mt-2 pt-2 border-t border-ferrow-yellow-400/20">
-                        <p className="text-xs text-ferrow-green-800/50 line-clamp-1">
-                          <span className="font-medium">Ingredients:</span> {product.ingredients}
+                      {/* Health Benefits Preview */}
+                      {product.health_benefits && (
+                        <p className="text-ferrow-green-800/60 mb-3 line-clamp-1 text-xs italic">
+                          💚 {product.health_benefits.split(",")[0]}...
                         </p>
-                      </div>
-                    )}
-                  </div>
+                      )}
 
-                  {/* Hover overlay animation */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-t from-ferrow-cream-400/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: hoveredId === product.id && !product.protein ? 0.3 : 0 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </motion.div>
-              ))}
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-lg font-bold text-gradient">Rp {formatPrice(product.price)}</span>
+                          {product.protein && (
+                            <div className="text-xs text-ferrow-green-800/60 mt-1">Protein: {product.protein}%</div>
+                          )}
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Link href={`/products/${product.id}`}>
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="w-10 h-10 rounded-full glass flex items-center justify-center border border-ferrow-yellow-400/30 text-ferrow-green-800 hover:text-ferrow-red-500 transition-colors"
+                              aria-label="Lihat detail produk"
+                            >
+                              <FaInfoCircle />
+                            </motion.button>
+                          </Link>
+
+                          <Link href="/cart">
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              disabled={product.stock === 0}
+                              className="w-10 h-10 rounded-full bg-ferrow-green-800 flex items-center justify-center text-ferrow-yellow-400 hover:bg-ferrow-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              aria-label="Lihat keranjang"
+                            >
+                              <FaShoppingCart />
+                            </motion.button>
+                          </Link>
+                        </div>
+                      </div>
+
+                      {/* Stock info */}
+                      <div className="mt-2 text-xs text-ferrow-green-800/60">
+                        {product.stock > 10
+                          ? "Stok tersedia"
+                          : product.stock > 0
+                            ? `Tersisa ${product.stock} item`
+                            : "Stok habis"}
+                      </div>
+
+                      {/* Ingredients preview */}
+                      {product.ingredients && (
+                        <div className="mt-2 pt-2 border-t border-ferrow-yellow-400/20">
+                          <p className="text-xs text-ferrow-green-800/50 line-clamp-1">
+                            <span className="font-medium">Ingredients:</span> {product.ingredients}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Hover overlay animation */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-t from-ferrow-cream-400/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: hoveredId === product.id && !product.protein ? 0.3 : 0 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
             </div>
           )}
         </div>
+
+        {/* Carousel Indicators */}
+        {!loading && !error && products.length > itemsPerView && (
+          <div className="flex justify-center mt-8 gap-2">
+            {Array.from({ length: maxIndex + 1 }, (_, index) => (
+              <motion.button
+                key={index}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => goToSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  currentIndex === index 
+                    ? 'bg-ferrow-green-800 scale-110' 
+                    : 'bg-ferrow-green-800/30 hover:bg-ferrow-green-800/50'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="text-center mt-12">
           <Link href="/products">

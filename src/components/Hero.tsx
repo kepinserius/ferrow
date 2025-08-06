@@ -102,7 +102,8 @@ const Hero = () => {
             className="mb-6"
           >
             <motion.span 
-              className="inline-block px-4 py-1 glass rounded-full text-sm font-medium mb-4 border border-ferrow-yellow-400/50 text-ferrow-green-800"
+              className="inline-block px-4 py-1 glass rounded-full text-sm font-medium mb-4 border border-ferrow-yellow-400/50"
+              style={{ color: '#F8F8F8' }}
               whileHover={{ 
                 scale: 1.05,
                 backgroundColor: "rgba(234, 212, 156, 0.3)" 
@@ -113,7 +114,8 @@ const Hero = () => {
           </motion.div>
           
           <motion.h1 
-            className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white mb-6"
+            className="text-4xl md:text-6xl lg:text-7xl font-display font-bold"
+            style={{ color: '#F8F8F8' }}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
