@@ -33,7 +33,6 @@ export default function Home() {
         }
       }
     }
-
     document.addEventListener("click", handleAnchorClick)
     return () => {
       document.removeEventListener("click", handleAnchorClick)
@@ -41,48 +40,106 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="bg-ferrow-cream-400 text-ferrow-green-800 overflow-hidden relative">
-      {/* Global subtle paw pattern */}
-      <PawBackground variant="light" density="low" />
+    <main className="bg-ferrow-cream-400 text-ferrow-green-800 relative min-h-screen">
+      {/* Global Paw Background - Always visible across all sections */}
+      <div className="fixed inset-0 z-0">
+        <PawBackground variant="light" density="low" animated={true} />
+      </div>
 
-      <Navbar />
+      {/* Navigation */}
+      <div className="relative z-50">
+        <Navbar />
+      </div>
 
-      {/* Hero Section with medium pattern */}
+      {/* Hero Section with enhanced pattern */}
       <section className="relative z-10">
-        <PawBackground variant="medium" density="medium" />
-        <Hero />
+        <div className="absolute inset-0 z-0">
+          <PawBackground variant="medium" density="medium" />
+        </div>
+        <div className="relative z-10">
+          <Hero />
+        </div>
       </section>
 
-      <Features />
+      {/* Features Section */}
+      <section className="relative z-10">
+        <div className="absolute inset-0 z-0">
+          <PawBackground variant="light" density="medium" />
+        </div>
+        <div className="relative z-10">
+          <Features />
+        </div>
+      </section>
 
       {/* Philosophy Section with high density pattern */}
       <section className="relative z-10">
-        <PawBackground variant="dark" density="high" />
-        <Philosophy />
+        <div className="absolute inset-0 z-0">
+          <PawBackground variant="medium" density="high" />
+        </div>
+        <div className="relative z-10">
+          <Philosophy />
+        </div>
       </section>
 
-      <Products />
-
-      {/* SusuWedus Section */}
+      {/* Products Section */}
       <section className="relative z-10">
-        <PawBackground variant="light" density="medium" />
-        <SusuWedus />
+        <div className="absolute inset-0 z-0">
+          <PawBackground variant="light" density="medium" />
+        </div>
+        <div className="relative z-10">
+          <Products />
+        </div>
       </section>
 
-      <FAQ />
+      {/* SusuWedus Section with dark pattern */}
       <section className="relative z-10">
-        <PawBackground variant="dark" density="low" />
-        <Newsletter />
+        <div className="absolute inset-0 z-0">
+          <PawBackground variant="dark" density="high" />
+        </div>
+        <div className="relative z-10">
+          <SusuWedus />
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="relative z-10">
+        <div className="absolute inset-0 z-0">
+          <PawBackground variant="medium" density="low" />
+        </div>
+        <div className="relative z-10">
+          <FAQ />
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="relative z-10">
+        <div className="absolute inset-0 z-0">
+          <PawBackground variant="dark" density="medium" />
+        </div>
+        <div className="relative z-10">
+          <Newsletter />
+        </div>
       </section>
 
       {/* Call to Action Section */}
       <section className="relative z-10">
-        <PawBackground variant="dark" density="low" />
-        <CallToAction />
+        <div className="absolute inset-0 z-0">
+          <PawBackground variant="dark" density="low" />
+        </div>
+        <div className="relative z-10">
+          <CallToAction />
+        </div>
       </section>
 
-      <Footer />
-      <ScrollToTop />
+      {/* Footer */}
+      <div className="relative z-10">
+        <Footer />
+      </div>
+
+      {/* Scroll to Top */}
+      <div className="relative z-50">
+        <ScrollToTop />
+      </div>
     </main>
   )
 }

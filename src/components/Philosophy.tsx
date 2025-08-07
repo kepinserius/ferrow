@@ -1,11 +1,11 @@
 "use client"
 import { motion } from "framer-motion"
 import type React from "react"
-
 import { useRef, useState, useEffect } from "react"
 import Image from "next/image"
 import { FaLeaf, FaHeart, FaShieldAlt, FaPaw, FaStar, FaUsers } from "react-icons/fa"
 import { GiWolfHowl, GiForest, GiMountains } from "react-icons/gi"
+import PawBackground from "./PawBackground"
 
 interface PhilosophyFeature {
   icon: React.ReactNode
@@ -25,18 +25,18 @@ const Philosophy = () => {
   // Return early loading state if not mounted
   if (!isMounted) {
     return (
-      <section className="relative py-20 bg-ferrow-cream-400 overflow-hidden">
+      <section className="relative py-20 bg-[#A53410] overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <div className="mb-6">
-              <span className="inline-flex items-center gap-2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full text-sm font-medium text-[#F8F8F8] border border-ferrow-yellow-400/50">
+              <span className="inline-flex items-center gap-2 px-6 py-3 bg-white/80 backdrop-blur-sm rounded-full text-sm font-medium text-ferrow-green-800 border border-ferrow-yellow-400/50">
                 <GiWolfHowl className="w-5 h-5" />
                 Filosofi FERROW
               </span>
             </div>
-            <h2 className="text-5xl lg:text-7xl font-display font-bold text-ferrow-green-800 mb-6">
+            <h2 className="text-5xl lg:text-7xl font-display font-bold text-[#F8F8F8] mb-6">
               <span className="block">FUEL THE</span>
-              <span style={{color: '#F8F8F8'}}>
+              <span className="text-[#F8F8F8]">
                 WILD
               </span>
             </h2>
@@ -68,64 +68,187 @@ const Philosophy = () => {
   ]
 
   return (
-
     <section ref={ref} className="relative py-20 bg-[#A53410] overflow-hidden">
+      {/* Paw Background - Fixed to section, visible on red background */}
+      <div className="absolute inset-0 z-0">
+        <PawBackground 
+          variant="light" 
+          density="high" 
+          animated={true}
+          className="opacity-20"
+        />
+      </div>
+
+      {/* Additional Paw Layer for better visibility on red background */}
+      <div className="absolute inset-0 z-1">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Custom paw prints optimized for red background */}
+          <motion.div
+            className="absolute top-10 left-10 w-24 h-24 opacity-15"
+            animate={{
+              rotate: [0, 360],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 20,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          >
+            <FaPaw 
+              size={48}
+              style={{ 
+                color: "#F8F8F8", // White color for visibility on red
+                filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))"
+              }} 
+            />
+          </motion.div>
+
+          <motion.div
+            className="absolute top-1/3 right-10 w-20 h-20 opacity-12"
+            animate={{
+              rotate: [180, -180],
+              scale: [0.8, 1.1, 0.8],
+            }}
+            transition={{
+              duration: 25,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          >
+            <FaPaw 
+              size={40}
+              style={{ 
+                color: "#EFE4C8", // Cream color for contrast
+                filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.4))"
+              }} 
+            />
+          </motion.div>
+
+          <motion.div
+            className="absolute bottom-20 left-1/4 w-28 h-28 opacity-10"
+            animate={{
+              rotate: [0, -360],
+              scale: [1.1, 0.9, 1.1],
+            }}
+            transition={{
+              duration: 30,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          >
+            <FaPaw 
+              size={52}
+              style={{ 
+                color: "#F8F8F8",
+                filter: "drop-shadow(0 5px 10px rgba(0,0,0,0.3))"
+              }} 
+            />
+          </motion.div>
+
+          <motion.div
+            className="absolute top-2/3 left-10 w-16 h-16 opacity-18"
+            animate={{
+              rotate: [45, 405],
+              scale: [0.9, 1.3, 0.9],
+            }}
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          >
+            <FaPaw 
+              size={32}
+              style={{ 
+                color: "#A68A64", // Darker cream for variety
+                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
+              }} 
+            />
+          </motion.div>
+
+          <motion.div
+            className="absolute bottom-1/3 right-1/4 w-22 h-22 opacity-14"
+            animate={{
+              rotate: [90, 450],
+              scale: [1, 0.8, 1],
+            }}
+            transition={{
+              duration: 22,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          >
+            <FaPaw 
+              size={44}
+              style={{ 
+                color: "#F8F8F8",
+                filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))"
+              }} 
+            />
+          </motion.div>
+        </div>
+      </div>
+
       {/* Background Elements - Simple animations without scroll-based transforms */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 z-2">
         <motion.div
-          animate={{ 
+          animate={{
             y: [0, -20, 0],
             opacity: [0.3, 0.5, 0.3]
           }}
-          transition={{ 
-            duration: 8, 
-            repeat: Infinity, 
-            ease: "easeInOut" 
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
           }}
-          className="absolute top-20 right-20 w-64 h-64 rounded-full bg-ferrow-green-500/10 blur-3xl"
+          className="absolute top-20 right-20 w-64 h-64 rounded-full bg-white/5 blur-3xl"
         />
         <motion.div
-          animate={{ 
+          animate={{
             y: [0, 20, 0],
             opacity: [0.2, 0.4, 0.2]
           }}
-          transition={{ 
-            duration: 6, 
-            repeat: Infinity, 
+          transition={{
+            duration: 6,
+            repeat: Infinity,
             ease: "easeInOut",
             delay: 2
           }}
-          className="absolute bottom-40 left-20 w-48 h-48 rounded-full bg-ferrow-yellow-400/10 blur-2xl"
+          className="absolute bottom-40 left-20 w-48 h-48 rounded-full bg-white/3 blur-2xl"
         />
       </div>
 
       {/* Wild Pattern Overlay */}
-      <div className="absolute inset-0 opacity-5">
+      <div className="absolute inset-0 opacity-8 z-3">
         <motion.div 
           className="absolute top-10 left-10"
           animate={{ rotate: [0, 5, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         >
-          <GiForest className="w-32 h-32 text-ferrow-green-500" />
+          <GiForest className="w-32 h-32 text-white/20" />
         </motion.div>
+        
         <motion.div 
           className="absolute bottom-20 right-20"
           animate={{ rotate: [0, -3, 0] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         >
-          <GiMountains className="w-40 h-40 text-ferrow-green-500" />
+          <GiMountains className="w-40 h-40 text-white/15" />
         </motion.div>
+
         <motion.div 
           className="absolute top-1/2 left-1/4"
-          animate={{ 
+          animate={{
             rotate: [0, 10, 0],
             scale: [1, 1.05, 1]
           }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 3 }}
         >
-          <GiWolfHowl className="w-24 h-24 text-ferrow-green-500" />
+          <GiWolfHowl className="w-24 h-24 text-white/25" />
         </motion.div>
       </div>
+
       <div className="container mx-auto px-4 relative z-10">
         {/* Header Section */}
         <motion.div
@@ -156,7 +279,7 @@ const Philosophy = () => {
             className="text-5xl lg:text-7xl font-display font-bold text-[#F8F8F8] mb-6"
           >
             <span className="block">FUEL THE</span>
-            <span className=" bg-clip-text text-[#F8F8F8]">
+            <span className="bg-clip-text text-[#F8F8F8]">
               WILD
             </span>
           </motion.h2>
@@ -402,5 +525,5 @@ const Philosophy = () => {
     </section>
   )
 }
-export default Philosophy
 
+export default Philosophy
