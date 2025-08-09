@@ -3,11 +3,131 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FaArrowRight, FaPaw } from 'react-icons/fa';
+import PawBackground from './PawBackground';
 
 const CallToAction = () => {
   return (
-    <section id="cta" className="py-24 bg-ferrow-green-800 relative overflow-hidden">
-      {/* Background elements */}
+    <section id="cta" className="py-24 bg-ferrow-400 relative overflow-hidden">
+      {/* Paw Background - Fixed to section, visible on red background */}
+            <div className="absolute inset-0 z-0">
+              <PawBackground 
+                variant="light" 
+                density="high" 
+                animated={true}
+                className="opacity-20"
+              />
+            </div>
+      
+            {/* Additional Paw Layer for better visibility on red background */}
+            <div className="absolute inset-0 z-1">
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                {/* Custom paw prints optimized for red background */}
+                <motion.div
+                  className="absolute top-10 left-10 w-24 h-24 opacity-15"
+                  animate={{
+                    rotate: [0, 360],
+                    scale: [1, 1.2, 1],
+                  }}
+                  transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                >
+                  <FaPaw 
+                    size={48}
+                    style={{ 
+                      color: "#F8F8F8", // White color for visibility on red
+                      filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))"
+                    }} 
+                  />
+                </motion.div>
+      
+                <motion.div
+                  className="absolute top-1/3 right-10 w-20 h-20 opacity-12"
+                  animate={{
+                    rotate: [180, -180],
+                    scale: [0.8, 1.1, 0.8],
+                  }}
+                  transition={{
+                    duration: 25,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                >
+                  <FaPaw 
+                    size={40}
+                    style={{ 
+                      color: "#EFE4C8", // Cream color for contrast
+                      filter: "drop-shadow(0 3px 6px rgba(0,0,0,0.4))"
+                    }} 
+                  />
+                </motion.div>
+      
+                <motion.div
+                  className="absolute bottom-20 left-1/4 w-28 h-28 opacity-10"
+                  animate={{
+                    rotate: [0, -360],
+                    scale: [1.1, 0.9, 1.1],
+                  }}
+                  transition={{
+                    duration: 30,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                >
+                  <FaPaw 
+                    size={52}
+                    style={{ 
+                      color: "#F8F8F8",
+                      filter: "drop-shadow(0 5px 10px rgba(0,0,0,0.3))"
+                    }} 
+                  />
+                </motion.div>
+      
+                <motion.div
+                  className="absolute top-2/3 left-10 w-16 h-16 opacity-18"
+                  animate={{
+                    rotate: [45, 405],
+                    scale: [0.9, 1.3, 0.9],
+                  }}
+                  transition={{
+                    duration: 18,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                >
+                  <FaPaw 
+                    size={32}
+                    style={{ 
+                      color: "#A68A64", // Darker cream for variety
+                      filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))"
+                    }} 
+                  />
+                </motion.div>
+      
+                <motion.div
+                  className="absolute bottom-1/3 right-1/4 w-22 h-22 opacity-14"
+                  animate={{
+                    rotate: [90, 450],
+                    scale: [1, 0.8, 1],
+                  }}
+                  transition={{
+                    duration: 22,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                >
+                  <FaPaw 
+                    size={44}
+                    style={{ 
+                      color: "#F8F8F8",
+                      filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.4))"
+                    }} 
+                  />
+                </motion.div>
+              </div>
+            </div>
       {/* Background pattern removed */}
       
       <motion.div 

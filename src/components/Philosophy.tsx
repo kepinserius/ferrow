@@ -25,7 +25,7 @@ const Philosophy = () => {
   // Return early loading state if not mounted
   if (!isMounted) {
     return (
-      <section className="relative py-20 bg-[#A53410] overflow-hidden">
+      <section className="relative py-20 bg-[#333A2D] overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
             <div className="mb-6">

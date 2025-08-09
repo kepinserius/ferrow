@@ -8,7 +8,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="bg-[#A53410] bg-ferrow-green-800 text-ferrow-cream-400 pt-16 pb-8">
+    <footer className="bg-[#333A2D] bg-ferrow-green-800 text-ferrow-cream-400 pt-16 pb-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
@@ -17,7 +17,7 @@ const Footer = () => {
               <Link href="/" className="inline-block">
                 <div className="relative w-40 h-12">
                   <Image 
-                    src="/images/LOGO/FINAL-MAIN LOGO-GREEN.png"
+                    src="/images/LOGO/FINAL-MAIN LOGO-CREAM.png"
                     alt="Ferrow Logo"
                     fill
                     sizes="160px"
