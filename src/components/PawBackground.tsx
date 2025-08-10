@@ -10,88 +10,53 @@ interface PawBackgroundProps {
   density?: "low" | "medium" | "high"
   animated?: boolean
   className?: string
+  position?: "left" | "right" // Menambahkan prop position untuk mengatur posisi paw
 }
 
 const PawBackground = ({ 
   variant = "light", 
   density = "medium",
   animated = false, // Default ke false untuk tidak bergerak
-  className = ""
+  className = "",
+  position = "right" // Default position ke kanan
 }: PawBackgroundProps) => {
   const [paws, setPaws] = useState<any[]>([])
 
   const config = {
-    light: { opacity: 0.05, colors: ["#d0d0d0", "#c0c0c0"] },
-    medium: { opacity: 0.08, colors: ["#b8b8b8", "#a8a8a8"] },
-    dark: { opacity: 0.12, colors: ["#a0a0a0", "#909090"] }
+    light: { opacity: 0.3, colors: ["#d0d0d0", "#c0c0c0"] },
+    medium: { opacity: 0.4, colors: ["#b8b8b8", "#a8a8a8"] },
+    dark: { opacity: 0.5, colors: ["#a0a0a0", "#909090"] }
   }
 
   const currentConfig = config[variant]
 
   const generateLargePaws = () => {
-    const paws = [
+    // Hanya 1 paw per section berdasarkan posisi
+    const rightPositionedPaw = [
       {
         id: 1,
-        x: 5, // Kiri atas
-        y: 5,
-        rotation: -25,
-        scale: 8, // Lebih besar lagi
+        x: 80, // Kanan
+        y: 40, // Tengah section
+        rotation: -15,
+        scale: 1.5, // Ukuran lebih besar
         type: 'image',
-        imageType: 'simple',
         color: currentConfig.colors[0]
-      },
+      }
+    ]
+
+    const leftPositionedPaw = [
       {
-        id: 2,
-        x: 75, // Kanan atas
-        y: 8,
-        rotation: 35,
-        scale: 7.5,
-        type: 'image',
-        imageType: 'simple',
-        color: currentConfig.colors[1]
-      },
-      {
-        id: 3,
-        x: 10, // Kiri bawah
-        y: 70,
+        id: 1,
+        x: 5, // Kiri
+        y: 40, // Tengah section
         rotation: 15,
-        scale: 9,
+        scale: 1.5, // Ukuran lebih besar
         type: 'image',
-        imageType: 'simple',
-        color: currentConfig.colors[0]
-      },
-      {
-        id: 4,
-        x: 80, // Kanan bawah
-        y: 75,
-        rotation: -20,
-        scale: 7,
-        type: 'image',
-        imageType: 'simple',
-        color: currentConfig.colors[1]
-      },
-      {
-        id: 5,
-        x: 45, // Tengah atas
-        y: 2,
-        rotation: 10,
-        scale: 6.5,
-        type: 'image',
-        imageType: 'simple',
-        color: currentConfig.colors[0]
-      },
-      {
-        id: 6,
-        x: 40, // Tengah bawah
-        y: 85,
-        rotation: -30,
-        scale: 8.5,
-        type: 'image',
-        imageType: 'simple',
         color: currentConfig.colors[1]
       }
     ]
-    return paws
+
+    return position === "right" ? rightPositionedPaw : leftPositionedPaw
   }
 
   useEffect(() => {
@@ -112,19 +77,14 @@ const PawBackground = ({
             transformOrigin: 'center',
           }}
         >
-          <div className="w-16 h-16 relative">
+          <div className="w-96 h-96 relative">
             <Image
-              src={paw.imageType === 'simple' 
-                ? "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/paw%20black-9roknOcb5cbfiKBVjIErzAg2fuk8ZB.png" 
-                : "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo%20Mark%20-%20Black-P8iqXmj4rrZznrCL9Y5helGZTseGxf.png"
-              }
+              src="/paw2.png"
               alt="Paw pattern"
               fill
-              sizes="64px"
+              sizes="384px"
               className="object-contain"
-              style={{
-                filter: `brightness(0) saturate(100%) invert(75%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)`,
-              }}
+              priority
             />
           </div>
         </div>

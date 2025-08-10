@@ -40,6 +40,43 @@ export default function Home() {
   }, [])
 
   return (
-        <><Navbar /><Hero /><Features /><Philosophy /><Products /><SusuWedus /><FAQ /><Newsletter /><CallToAction /><Footer /><ScrollToTop /></>
+    <div className="relative">
+      {/* Section 1 - Hero dengan PawBackground di kanan */}
+      <div className="relative">
+        <PawBackground className="z-0" position="right" />
+        <Navbar />
+        <Hero />
+      </div>
+      
+      {/* Section 2 - Features dengan PawBackground di kiri */}
+      <div className="relative">
+        <PawBackground className="z-0" position="left" />
+        <Features />
+      </div>
+      
+      {/* Section 3 - Philosophy dengan PawBackground di kanan */}
+      <div className="relative">
+        <PawBackground className="z-0" position="right" />
+        <Philosophy />
+      </div>
+      
+      {/* Section 4 - Products dengan PawBackground di kiri */}
+      <div className="relative">
+        <PawBackground className="z-0" position="left" />
+        <Products />
+      </div>
+      
+      {/* Section 5 - SusuWedus dengan PawBackground di kanan */}
+      <div className="relative">
+        <PawBackground className="z-0" position="right" />
+        <SusuWedus />
+      </div>
+      
+      {/* Section lainnya */}
+      <FAQ />
+      <CallToAction />
+      <Footer />
+      <ScrollToTop />
+    </div>
   )
 }
