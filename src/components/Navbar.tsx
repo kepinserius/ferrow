@@ -22,18 +22,8 @@ const Navbar = () => {
       // Set isScrolled untuk styling
       setIsScrolled(currentScrollY > 50)
 
-      // Logic untuk hide/show navbar
-      if (currentScrollY < 100) {
-        // Selalu tampilkan navbar di bagian atas
-        setIsVisible(true)
-      } else if (currentScrollY > lastScrollY && currentScrollY > 200) {
-        // Scroll ke bawah - sembunyikan navbar
-        setIsVisible(false)
-        setIsMobileMenuOpen(false) // Tutup mobile menu jika terbuka
-      } else if (currentScrollY < lastScrollY) {
-        // Scroll ke atas - tampilkan navbar
-        setIsVisible(true)
-      }
+      // Navbar selalu visible - tidak pernah disembunyikan
+      setIsVisible(true)
 
       setLastScrollY(currentScrollY)
     }
@@ -68,7 +58,7 @@ const Navbar = () => {
         <motion.header
           className="fixed top-0 left-0 w-full z-50 transition-all duration-300"
           style={{
-            backgroundColor: isScrolled ? "transparent" : "transparent",
+            backgroundColor: isScrolled ? "#333A2D" : "transparent",
             backdropFilter: isScrolled ? "blur(10px)" : "blur(2px)",
             padding: isScrolled ? "0.5rem 0" : "1rem 0",
             boxShadow: isScrolled ? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)" : "none",
@@ -108,7 +98,7 @@ const Navbar = () => {
                       <Image
                         src={
                           isScrolled
-                            ? "/images/LOGO/FINAL-MAIN LOGO-GREEN.png"
+                            ? "/images/LOGO/FINAL-MAIN LOGO-CREAM.png"
                             : "/images/LOGO/FINAL-MAIN LOGO-CREAM.png"
                         }
                         alt="Ferrow Logo"
@@ -130,28 +120,28 @@ const Navbar = () => {
                 <Link
                   href="/"
                   className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide"
-                  style={{ color: isScrolled ? "#333A2D" : "#F8F8F8" }}
+                  style={{ color: isScrolled ? "#EAD49C" : "#F8F8F8" }}
                 >
                   Beranda
                 </Link>
                 <Link
                   href="/products"
                   className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide"
-                  style={{ color: isScrolled ? "#333A2D" : "#F8F8F8" }}
+                  style={{ color: isScrolled ? "#EAD49C" : "#F8F8F8" }}
                 >
                   Produk
                 </Link>
                 <Link
                   href="#philosophy"
                   className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide"
-                  style={{ color: isScrolled ? "#333A2D" : "#F8F8F8" }}
+                  style={{ color: isScrolled ? "#EAD49C" : "#F8F8F8" }}
                 >
                   Filosofi
                 </Link>
                 <Link
                   href="#faq"
                   className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide"
-                  style={{ color: isScrolled ? "#333A2D" : "#F8F8F8" }}
+                  style={{ color: isScrolled ? "#EAD49C" : "#F8F8F8" }}
                 >
                   FAQ
                 </Link>
