@@ -22,8 +22,18 @@ const Navbar = () => {
       // Set isScrolled untuk styling
       setIsScrolled(currentScrollY > 50)
 
-      // Navbar selalu visible - tidak pernah disembunyikan
-      setIsVisible(true)
+      // Logic untuk hide/show navbar - langsung responsif
+      if (currentScrollY < 100) {
+        // Selalu tampilkan navbar di bagian atas
+        setIsVisible(true)
+      } else if (currentScrollY > lastScrollY) {
+        // Scroll ke bawah - langsung sembunyikan navbar
+        setIsVisible(false)
+        setIsMobileMenuOpen(false) // Tutup mobile menu jika terbuka
+      } else if (currentScrollY < lastScrollY) {
+        // Scroll ke atas - langsung tampilkan navbar
+        setIsVisible(true)
+      }
 
       setLastScrollY(currentScrollY)
     }
@@ -73,19 +83,6 @@ const Navbar = () => {
               {/* Enhanced Logo with Prominent Design */}
               <Link href="/" className="flex items-center relative z-60">
                 <motion.div className="relative" whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
-                  {/* Background Label/Badge */}
-                  {/* <div
-                    className="absolute inset-0 rounded-xl shadow-2xl transform -rotate-1 scale-110"
-                    style={{
-                      backgroundColor: isScrolled ? "#EAD49C" : "#A53410",
-                      opacity: 0.9,
-                      top: "-8px",
-                      bottom: "-8px",
-                      left: "-12px",
-                      right: "-12px",
-                    }}
-                  /> */}
-
                   {/* Main Logo Container */}
                   <div
                     className="relative bg-transparent rounded-lg shadow-lg p-3"
@@ -152,7 +149,7 @@ const Navbar = () => {
                 {/* Cart Icon */}
                 <Link href="/cart">
                   <motion.div className="relative p-2" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                    <FaShoppingCart className="text-2xl" style={{ color: isScrolled ? "#333A2D" : "#FFFFFF" }} />
+                    <FaShoppingCart className="text-2xl" style={{ color: isScrolled ? "#EAD49C" : "#FFFFFF" }} />
                     {subTotal > 0 && (
                       <span
                         className="absolute -top-1 -right-1 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full"
@@ -167,7 +164,7 @@ const Navbar = () => {
                 {/* Mobile Menu Button */}
                 <button
                   className="md:hidden p-2"
-                  style={{ color: isScrolled ? "#333A2D" : "#FFFFFF" }}
+                  style={{ color: isScrolled ? "#EAD49C" : "#FFFFFF" }}
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   aria-label="Toggle mobile menu"
                 >
