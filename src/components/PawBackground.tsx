@@ -38,7 +38,7 @@ const PawBackground = ({
         x: 80, // Kanan
         y: 40, // Tengah section
         rotation: -15,
-        scale: 1.5, // Ukuran lebih besar
+        scale: 1.2, // Ukuran lebih besar
         type: 'image',
         color: currentConfig.colors[0]
       }
@@ -50,7 +50,7 @@ const PawBackground = ({
         x: 3, // Kiri
         y: 40, // Tengah section
         rotation: 15,
-        scale: 1.5, // Ukuran lebih besar
+        scale: 1.2, // Ukuran lebih besar
         type: 'image',
         color: currentConfig.colors[1]
       }
