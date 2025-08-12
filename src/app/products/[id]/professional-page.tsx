@@ -111,7 +111,7 @@ export default function ProfessionalProductDetail({ params }: { params: { id: st
 
   const getProductQuantity = (): number => {
     if (!product) return 0
-    const item = cartItems.find((item) => item.id === product.id)
+    const item = cartItems.find((item) => item.id === product.id.toString())
     return item ? item.quantity : 0
   }
 
@@ -120,7 +120,7 @@ export default function ProfessionalProductDetail({ params }: { params: { id: st
   const handleAddToCart = () => {
     if (product) {
       const cartItem: CartItem = {
-        id: product.id,
+        id: product.id.toString(),
         name: product.name,
         description: product.description || "",
         price: product.price,
