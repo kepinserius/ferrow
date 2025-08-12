@@ -14,7 +14,7 @@ const CallToAction = () => {
                 variant="light" 
                 density="high" 
                 animated={true}
-                className="opacity-20"
+                className="opacity-80"
               />
             </div>
       

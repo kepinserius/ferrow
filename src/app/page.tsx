@@ -72,8 +72,12 @@ export default function Home() {
         <SusuWedus />
       </div>
       
+      <div className="relative">
+        <PawBackground className="z-0" position="left" />
+        <FAQ />
+      </div>
+      
       {/* Section lainnya */}
-      <FAQ />
       <CallToAction />
       <Footer />
       <ScrollToTop />

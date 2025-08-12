@@ -37,16 +37,6 @@ const FAQ = () => {
 
   return (
     <section id="faq" className="py-24 bg-ferrow-400 relative overflow-hidden">
-      {/* Paw Background - Fixed to section, visible on red background */}
-            <div className="absolute inset-0 z-0">
-              <PawBackground 
-                variant="light" 
-                density="high" 
-                animated={true}
-                className="opacity-20"
-              />
-            </div>
-      
             {/* Additional Paw Layer for better visibility on red background */}
             <div className="absolute inset-0 z-1">
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
