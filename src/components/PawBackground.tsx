@@ -47,7 +47,7 @@ const PawBackground = ({
     const leftPositionedPaw = [
       {
         id: 1,
-        x: 5, // Kiri
+        x: 3, // Kiri
         y: 40, // Tengah section
         rotation: 15,
         scale: 1.5, // Ukuran lebih besar
