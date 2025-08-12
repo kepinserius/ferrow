@@ -21,10 +21,10 @@ export default function LoginForm() {
     setError('')
 
     try {
-      const { data, error } = await signIn(email, password)
+      const result = await signIn(email, password)
 
-      if (error) {
-        setError(error.message)
+      if (!result.success) {
+        setError(result.message || 'Login Failed')
       } else {
         router.push('/admin/dashboard')
       }
