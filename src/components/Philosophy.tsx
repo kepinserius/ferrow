@@ -68,7 +68,7 @@ const Philosophy = () => {
   ]
 
   return (
-    <section ref={ref} className="relative py-20 bg-[#A53410] overflow-hidden">
+    <section id="philosophy" ref={ref} className="relative py-20 bg-[#A53410] overflow-hidden">
       {/* Paw Background - Fixed to section, visible on red background */}
       <div className="absolute inset-0 z-0">
         <PawBackground 

@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { FaShoppingCart, FaBars, FaTimes } from "react-icons/fa"
 import { useCart } from "@/context/CartContext"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -14,6 +14,22 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { subTotal } = useCart()
   const pathname = usePathname()
+  const router = useRouter()
+
+  // Function to handle navigation with scroll
+  const handleNavigationWithScroll = (sectionId: string) => {
+    if (pathname === "/") {
+      // If already on home page, just scroll to section
+      const element = document.getElementById(sectionId)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' })
+      }
+    } else {
+      // If on different page, navigate to home with hash
+      router.push(`/#${sectionId}`)
+    }
+    setIsMobileMenuOpen(false)
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,6 +65,19 @@ const Navbar = () => {
       setIsVisible(true)
     }
   }, [pathname, lastScrollY])
+
+  // Handle scroll on page load if there's a hash
+  useEffect(() => {
+    if (pathname === "/" && window.location.hash) {
+      const sectionId = window.location.hash.substring(1)
+      setTimeout(() => {
+        const element = document.getElementById(sectionId)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' })
+        }
+      }, 100) // Small delay to ensure page is loaded
+    }
+  }, [pathname])
 
   // Close mobile menu on resize
   useEffect(() => {
@@ -128,20 +157,20 @@ const Navbar = () => {
                 >
                   Produk
                 </Link>
-                <Link
-                  href="#philosophy"
-                  className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide"
+                <button
+                  onClick={() => handleNavigationWithScroll('philosophy')}
+                  className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide bg-transparent border-none cursor-pointer"
                   style={{ color: isScrolled ? "#EAD49C" : "#F8F8F8" }}
                 >
                   Filosofi
-                </Link>
-                <Link
-                  href="#faq"
-                  className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide"
+                </button>
+                <button
+                  onClick={() => handleNavigationWithScroll('faq')}
+                  className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide bg-transparent border-none cursor-pointer"
                   style={{ color: isScrolled ? "#EAD49C" : "#F8F8F8" }}
                 >
                   FAQ
-                </Link>
+                </button>
               </nav>
 
               {/* Right Side - Cart & Mobile Menu */}
@@ -206,30 +235,27 @@ const Navbar = () => {
                     >
                       Produk
                     </Link>
-                    <Link
-                      href="#philosophy"
-                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide"
+                    <button
+                      onClick={() => handleNavigationWithScroll('philosophy')}
+                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide bg-transparent border-none text-left"
                       style={{ color: isScrolled ? "#333A2D" : "#FFFFFF" }}
-                      onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Filosofi
-                    </Link>
-                    <Link
-                      href="#testimonials"
-                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide"
+                    </button>
+                    <button
+                      onClick={() => handleNavigationWithScroll('testimonials')}
+                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide bg-transparent border-none text-left"
                       style={{ color: isScrolled ? "#333A2D" : "#FFFFFF" }}
-                      onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Testimonial
-                    </Link>
-                    <Link
-                      href="#faq"
-                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 font-semibold tracking-wide"
+                    </button>
+                    <button
+                      onClick={() => handleNavigationWithScroll('faq')}
+                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 font-semibold tracking-wide bg-transparent border-none text-left"
                       style={{ color: isScrolled ? "#333A2D" : "#FFFFFF" }}
-                      onClick={() => setIsMobileMenuOpen(false)}
                     >
                       FAQ
-                    </Link>
+                    </button>
                   </nav>
                 </div>
               </motion.div>

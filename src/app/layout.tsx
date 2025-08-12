@@ -68,11 +68,17 @@ export const metadata = {
   title: 'Ferrow - Premium Natural Pet Food',
   description: 'Makanan hewan premium berbahan alami, grain-free, terinspirasi dari diet predator liar',
   keywords: 'pet food, natural, grain-free, premium, dog food, cat food',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
-  icons:{
-    icon:`/favicon.ico`,
+  icons: {
+    icon: `/favicon.ico`,
   },
 }
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
+
 
 export default function RootLayout({
   children,
