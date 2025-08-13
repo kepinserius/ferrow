@@ -13,7 +13,7 @@ const Navbar = () => {
   const [lastScrollY, setLastScrollY] = useState(0)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<any>(null) // untuk deteksi login
-  const { subTotal, clearCart } = useCart()
+  const { subtotal, clearCart } = useCart()
   const pathname = usePathname()
   const router = useRouter()
 
@@ -170,12 +170,12 @@ const Navbar = () => {
                       className="text-2xl"
                       style={{ color: isScrolled ? "#EAD49C" : "#FFF" }}
                     />
-                    {subTotal > 0 && (
+                    {subtotal > 0 && (
                       <span
                         className="absolute -top-1 -right-1 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full"
                         style={{ backgroundColor: "#A53410" }}
                       >
-                        {subTotal}
+                        {subtotal}
                       </span>
                     )}
                   </motion.div>

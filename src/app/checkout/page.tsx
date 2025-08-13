@@ -31,7 +31,7 @@ interface ShippingOption {
 }
 
 export default function Checkout() {
-  const { cartItems, subTotal, clearCart } = useCart()
+  const { cartItems, subtotal, clearCart } = useCart()
   const { user, loading: authLoading } = useUserAuth()
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
@@ -223,9 +223,9 @@ export default function Checkout() {
           estimated_delivery: selectedShipping?.estimatedDelivery,
           payment_method: paymentMethod,
           items: cartItems,
-          subTotal,
+          subtotal,
           shipping_cost: selectedShipping?.cost || 0,
-          total_amount: subTotal + (selectedShipping?.cost || 0),
+          total_amount: subtotal + (selectedShipping?.cost || 0),
         }),
       })
 
@@ -318,7 +318,7 @@ export default function Checkout() {
     selectedShipping &&
     Object.keys(errors).length === 0
 
-  const total = subTotal + (selectedShipping?.cost || 0)
+  const total = subtotal + (selectedShipping?.cost || 0)
 
   if (!isMounted) {
     return <div className="h-screen bg-ferrow-cream-400" />
@@ -787,7 +787,7 @@ export default function Checkout() {
                   <div className="space-y-4 mb-6">
                     <div className="flex justify-between items-center">
                       <span className="text-ferrow-green-700">Subtotal ({cartItems.length} item)</span>
-                      <span className="font-semibold text-ferrow-green-800">Rp {subTotal.toLocaleString("id-ID")}</span>
+                      <span className="font-semibold text-ferrow-green-800">Rp {subtotal.toLocaleString("id-ID")}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-ferrow-green-700">Pengiriman</span>
