@@ -11,8 +11,10 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   console.log("Rendering Providers component") // Debugging log
   return (
-    <AuthProvider>
-      <CartProvider>{children}</CartProvider>
-    </AuthProvider>
+    <CartProvider>
+      <AuthProvider>
+        {children}
+      </AuthProvider>
+    </CartProvider>
   )
 }

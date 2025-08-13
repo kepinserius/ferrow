@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
+import { useCart } from "./CartContext"
 
 // User interface for customers
 interface User {
@@ -213,12 +214,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   // Customer sign out
+  const clearCart = useCart
+
   const signOut = () => {
     localStorage.removeItem("ferrow-user")
     localStorage.removeItem("ferrow-cart")
-    setUser(null)
+    clearCart();
+    setUser(null);
     // Optionally redirect to home or login page for customers
-    // router.push("/");
+    router.push("/user/login-user");
   }
 
   // Admin sign in

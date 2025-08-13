@@ -12,20 +12,30 @@ const Navbar = () => {
   const [isVisible, setIsVisible] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { subTotal } = useCart()
+  const [user, setUser] = useState<any>(null) // untuk deteksi login
+  const { subTotal, clearCart } = useCart()
   const pathname = usePathname()
   const router = useRouter()
 
-  // Function to handle navigation with scroll
+  // Ambil user dari localStorage saat awal load
+  useEffect(() => {
+    const storedUser = localStorage.getItem("ferrow-user")
+    if (storedUser) setUser(JSON.parse(storedUser))
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("ferrow-user")
+    localStorage.removeItem("ferrow-cart")
+    clearCart()
+    setUser(null)
+    router.push("/user/login-user")
+  }
+
   const handleNavigationWithScroll = (sectionId: string) => {
     if (pathname === "/") {
-      // If already on home page, just scroll to section
       const element = document.getElementById(sectionId)
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' })
-      }
+      if (element) element.scrollIntoView({ behavior: "smooth" })
     } else {
-      // If on different page, navigate to home with hash
       router.push(`/#${sectionId}`)
     }
     setIsMobileMenuOpen(false)
@@ -34,20 +44,14 @@ const Navbar = () => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY
-
-      // Set isScrolled untuk styling
       setIsScrolled(currentScrollY > 50)
 
-      // Logic untuk hide/show navbar - langsung responsif
       if (currentScrollY < 100) {
-        // Selalu tampilkan navbar di bagian atas
         setIsVisible(true)
       } else if (currentScrollY > lastScrollY) {
-        // Scroll ke bawah - langsung sembunyikan navbar
         setIsVisible(false)
-        setIsMobileMenuOpen(false) // Tutup mobile menu jika terbuka
+        setIsMobileMenuOpen(false)
       } else if (currentScrollY < lastScrollY) {
-        // Scroll ke atas - langsung tampilkan navbar
         setIsVisible(true)
       }
 
@@ -55,38 +59,31 @@ const Navbar = () => {
     }
 
     if (pathname === "/") {
-      // Hanya di halaman '/' baru dengar event scroll
-      handleScroll() // supaya langsung deteksi saat refresh
+      handleScroll()
       window.addEventListener("scroll", handleScroll)
       return () => window.removeEventListener("scroll", handleScroll)
     } else {
-      // Di halaman lain, langsung set solid dan visible
       setIsScrolled(true)
       setIsVisible(true)
     }
   }, [pathname, lastScrollY])
 
-  // Handle scroll on page load if there's a hash
   useEffect(() => {
     if (pathname === "/" && window.location.hash) {
       const sectionId = window.location.hash.substring(1)
       setTimeout(() => {
         const element = document.getElementById(sectionId)
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' })
-        }
-      }, 100) // Small delay to ensure page is loaded
+        if (element) element.scrollIntoView({ behavior: "smooth" })
+      }, 100)
     }
   }, [pathname])
 
-  // Close mobile menu on resize
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
         setIsMobileMenuOpen(false)
       }
     }
-
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
   }, [])
@@ -100,7 +97,9 @@ const Navbar = () => {
             backgroundColor: isScrolled ? "#333A2D" : "transparent",
             backdropFilter: isScrolled ? "blur(10px)" : "blur(2px)",
             padding: isScrolled ? "0.5rem 0" : "1rem 0",
-            boxShadow: isScrolled ? "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)" : "none",
+            boxShadow: isScrolled
+              ? "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+              : "none",
           }}
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -109,24 +108,19 @@ const Navbar = () => {
         >
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between">
-              {/* Enhanced Logo with Prominent Design */}
               <Link href="/" className="flex items-center relative z-60">
-                <motion.div className="relative" whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
-                  {/* Main Logo Container */}
+                <motion.div
+                  className="relative"
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <div
                     className="relative bg-transparent rounded-lg shadow-lg p-3"
-                    style={{
-                      width: "180px",
-                      height: "70px",
-                    }}
+                    style={{ width: "180px", height: "70px" }}
                   >
                     <div className="relative w-full h-full">
                       <Image
-                        src={
-                          isScrolled
-                            ? "/images/LOGO/FINAL-MAIN LOGO-CREAM.png"
-                            : "/images/LOGO/FINAL-MAIN LOGO-CREAM.png"
-                        }
+                        src="/images/LOGO/FINAL-MAIN LOGO-CREAM.png"
                         alt="Ferrow Logo"
                         fill
                         sizes="180px"
@@ -138,47 +132,44 @@ const Navbar = () => {
                 </motion.div>
               </Link>
 
-              {/* Desktop Navigation - Centered */}
-              <nav
-                className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2"
-                style={{ fontFamily: "'AKKO', 'Montserrat', 'Inter', sans-serif" }}
-              >
-                <Link
-                  href="/"
-                  className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide"
-                  style={{ color: isScrolled ? "#EAD49C" : "#F8F8F8" }}
-                >
+              {/* Desktop Navigation */}
+              <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+                <Link href="/" style={{ color: isScrolled ? "#EAD49C" : "#FFF" }}>
                   Beranda
                 </Link>
                 <Link
                   href="/products"
-                  className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide"
-                  style={{ color: isScrolled ? "#EAD49C" : "#F8F8F8" }}
+                  style={{ color: isScrolled ? "#EAD49C" : "#FFF" }}
                 >
                   Produk
                 </Link>
                 <button
-                  onClick={() => handleNavigationWithScroll('philosophy')}
-                  className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide bg-transparent border-none cursor-pointer"
-                  style={{ color: isScrolled ? "#EAD49C" : "#F8F8F8" }}
+                  onClick={() => handleNavigationWithScroll("philosophy")}
+                  style={{ color: isScrolled ? "#EAD49C" : "#FFF" }}
                 >
                   Filosofi
                 </button>
                 <button
-                  onClick={() => handleNavigationWithScroll('faq')}
-                  className="text-lg md:text-xl font-semibold hover:text-ferrow-yellow-400 transition-all duration-300 animated-underline tracking-wide bg-transparent border-none cursor-pointer"
-                  style={{ color: isScrolled ? "#EAD49C" : "#F8F8F8" }}
+                  onClick={() => handleNavigationWithScroll("faq")}
+                  style={{ color: isScrolled ? "#EAD49C" : "#FFF" }}
                 >
                   FAQ
                 </button>
               </nav>
 
-              {/* Right Side - Cart & Mobile Menu */}
+              {/* Right Side */}
               <div className="flex items-center space-x-4">
-                {/* Cart Icon */}
+                {/* Cart */}
                 <Link href="/cart">
-                  <motion.div className="relative p-2" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                    <FaShoppingCart className="text-2xl" style={{ color: isScrolled ? "#EAD49C" : "#FFFFFF" }} />
+                  <motion.div
+                    className="relative p-2"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <FaShoppingCart
+                      className="text-2xl"
+                      style={{ color: isScrolled ? "#EAD49C" : "#FFF" }}
+                    />
                     {subTotal > 0 && (
                       <span
                         className="absolute -top-1 -right-1 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full"
@@ -190,12 +181,21 @@ const Navbar = () => {
                   </motion.div>
                 </Link>
 
-                {/* Mobile Menu Button */}
+                {/* Logout Button (hanya muncul kalau login) */}
+                {user && (
+                  <button
+                    onClick={handleLogout}
+                    className="px-3 py-1 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition"
+                  >
+                    Logout
+                  </button>
+                )}
+
+                {/* Mobile Menu Toggle */}
                 <button
                   className="md:hidden p-2"
-                  style={{ color: isScrolled ? "#EAD49C" : "#FFFFFF" }}
+                  style={{ color: isScrolled ? "#EAD49C" : "#FFF" }}
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  aria-label="Toggle mobile menu"
                 >
                   {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
                 </button>
@@ -215,47 +215,43 @@ const Navbar = () => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="container mx-auto px-4 py-4">
-                  <nav
-                    className="flex flex-col space-y-4"
-                    style={{ fontFamily: "'AKKO', 'Montserrat', 'Inter', sans-serif" }}
-                  >
+                  <nav className="flex flex-col space-y-4">
                     <Link
                       href="/"
-                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide"
-                      style={{ color: isScrolled ? "#333A2D" : "#FFFFFF" }}
                       onClick={() => setIsMobileMenuOpen(false)}
+                      style={{ color: isScrolled ? "#333A2D" : "#FFF" }}
                     >
                       Beranda
                     </Link>
                     <Link
                       href="/products"
-                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide"
-                      style={{ color: isScrolled ? "#333A2D" : "#FFFFFF" }}
                       onClick={() => setIsMobileMenuOpen(false)}
+                      style={{ color: isScrolled ? "#333A2D" : "#FFF" }}
                     >
                       Produk
                     </Link>
                     <button
-                      onClick={() => handleNavigationWithScroll('philosophy')}
-                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide bg-transparent border-none text-left"
-                      style={{ color: isScrolled ? "#333A2D" : "#FFFFFF" }}
+                      onClick={() => handleNavigationWithScroll("philosophy")}
+                      style={{ color: isScrolled ? "#333A2D" : "#FFF" }}
                     >
                       Filosofi
                     </button>
                     <button
-                      onClick={() => handleNavigationWithScroll('testimonials')}
-                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 border-b border-ferrow-cream-400/10 font-semibold tracking-wide bg-transparent border-none text-left"
-                      style={{ color: isScrolled ? "#333A2D" : "#FFFFFF" }}
-                    >
-                      Testimonial
-                    </button>
-                    <button
-                      onClick={() => handleNavigationWithScroll('faq')}
-                      className="hover:text-ferrow-yellow-400 transition-all duration-300 py-2 font-semibold tracking-wide bg-transparent border-none text-left"
-                      style={{ color: isScrolled ? "#333A2D" : "#FFFFFF" }}
+                      onClick={() => handleNavigationWithScroll("faq")}
+                      style={{ color: isScrolled ? "#333A2D" : "#FFF" }}
                     >
                       FAQ
                     </button>
+
+                    {/* Logout di Mobile Menu */}
+                    {user && (
+                      <button
+                        onClick={handleLogout}
+                        className="px-3 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition"
+                      >
+                        Logout
+                      </button>
+                    )}
                   </nav>
                 </div>
               </motion.div>

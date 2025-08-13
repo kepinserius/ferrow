@@ -43,7 +43,7 @@ const RegisterPage = () => {
       if (result.success) {
         setSuccessMessage(result.message || "Pendaftaran berhasil! Silakan periksa email Anda untuk verifikasi.")
         setTimeout(() => {
-          router.push("/login-user")
+          router.push("/user/login-user")
         }, 3000)
       } else {
         setError(result.message || "Pendaftaran gagal. Silakan coba lagi.")
@@ -274,7 +274,7 @@ const RegisterPage = () => {
                 <div className="text-center space-y-4">
                   <p className="text-ferrow-green-700 text-sm">
                     Sudah punya akun?{" "}
-                    <Link href="/login-user" className="text-ferrow-green-600 hover:underline font-semibold">
+                    <Link href="/user/login-user" className="text-ferrow-green-600 hover:underline font-semibold">
                       Masuk di sini
                     </Link>
                   </p>
