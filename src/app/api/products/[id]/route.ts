@@ -2,9 +2,12 @@ import { type NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabaseClient"
 
 // GET single product
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { data, error } = await supabase.from("products").select("*").eq("id", params.id).single()
+    // Await the params Promise
+    const { id } = await params
+
+    const { data, error } = await supabase.from("products").select("*").eq("id", id).single()
 
     if (error) {
       console.error("Error fetching product:", error)
@@ -23,11 +26,14 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // UPDATE product
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Await the params Promise
+    const { id } = await params
+    
     const body = await request.json()
 
-    const { data, error } = await supabase.from("products").update(body).eq("id", params.id).select().single()
+    const { data, error } = await supabase.from("products").update(body).eq("id", id).select().single()
 
     if (error) {
       console.error("Error updating product:", error)
@@ -42,13 +48,16 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE product
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Await the params Promise
+    const { id } = await params
+
     // First check if product exists
     const { data: existingProduct, error: fetchError } = await supabase
       .from("products")
       .select("id, name")
-      .eq("id", params.id)
+      .eq("id", id)
       .single()
 
     if (fetchError || !existingProduct) {
@@ -56,7 +65,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     // Delete the product
-    const { error: deleteError } = await supabase.from("products").delete().eq("id", params.id)
+    const { error: deleteError } = await supabase.from("products").delete().eq("id", id)
 
     if (deleteError) {
       console.error("Error deleting product:", deleteError)

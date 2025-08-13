@@ -24,6 +24,13 @@ interface Product {
   rating?: number
 }
 
-export default function ProductDetail({ params }: { params: { id: string } }) {
-  return <ProfessionalProductDetail params={params} />
+export default async function ProductDetail({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
+  // Await the params Promise
+  const resolvedParams = await params
+  
+  return <ProfessionalProductDetail params={resolvedParams} />
 }

@@ -48,8 +48,11 @@ interface Order {
   order_items: OrderItem[] // Menambahkan array order_items
 }
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Await the params Promise
+    const { id } = await params
+
     // Mengambil data order dan order_items terkait
     const { data, error } = await supabaseAdmin
       .from("orders")
@@ -70,7 +73,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         )
       `,
       )
-      .eq("id", params.id)
+      .eq("id", id)
       .single()
 
     if (error) {
@@ -108,8 +111,11 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    // Await the params Promise
+    const { id } = await params
+
     const body = await request.json()
     const { status, payment_status, tracking_number, notes } = body
     const updateData: any = {
@@ -129,7 +135,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const { data: order, error } = await supabaseAdmin
       .from("orders")
       .update(updateData)
-      .eq("id", params.id)
+      .eq("id", id)
       .select()
       .single()
 
@@ -146,9 +152,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { error } = await supabaseAdmin.from("orders").delete().eq("id", params.id)
+    // Await the params Promise
+    const { id } = await params
+
+    const { error } = await supabaseAdmin.from("orders").delete().eq("id", id)
 
     if (error) throw error
 

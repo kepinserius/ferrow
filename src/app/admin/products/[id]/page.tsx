@@ -1,6 +1,13 @@
 import ProductForm from '../product-form'
 
-// Biarkan Next.js atur typing, kita tidak pakai custom type
-export default async function EditProductPage({ params }: { params: { id: string } }) {
-  return <ProductForm mode="edit" productId={params.id} />
+// Next.js 15: params is now a Promise
+export default async function EditProductPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
+  // Await the params Promise
+  const { id } = await params
+  
+  return <ProductForm mode="edit" productId={id} />
 }
