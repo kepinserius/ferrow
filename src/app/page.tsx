@@ -41,13 +41,6 @@ export default function Home() {
 
   return (
     <div className="relative">
-      {/* Section 1 - Hero dengan PawBackground di kanan */}
-      <div className="relative">
-        <PawBackground className="z-0" position="right" />
-        <Navbar />
-        <Hero />
-      </div>
-      
       {/* Section 2 - Features dengan PawBackground di kiri */}
       <div className="relative">
         <PawBackground className="z-0" position="left" />
