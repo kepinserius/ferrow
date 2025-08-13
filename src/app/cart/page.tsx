@@ -9,7 +9,7 @@ import Footer from "@/components/Footer"
 import { useCart } from "@/context/CartContext"
 
 export default function Cart() {
-  const { cartItems, removeFromCart, updateQuantity, subTotal, shipping, total } = useCart()
+  const { cartItems, removeFromCart, updateQuantity, subtotal, shipping, total } = useCart()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -173,7 +173,7 @@ export default function Cart() {
                       <div className="flex justify-between items-center">
                         <span className="text-ferrow-green-700">Subtotal ({cartItems.length} item)</span>
                         <span className="font-semibold text-ferrow-green-800">
-                          Rp {subTotal.toLocaleString("id-ID")}
+                          Rp {subtotal.toLocaleString("id-ID")}
                         </span>
                       </div>
 
@@ -191,7 +191,7 @@ export default function Cart() {
                         )}
                       </div>
 
-                      {shipping === 0 && subTotal > 0 && (
+                      {shipping === 0 && subtotal > 0 && (
                         <div className="bg-ferrow-green-500/10 border border-ferrow-green-500/20 text-ferrow-green-700 text-sm rounded-xl p-3 flex items-center gap-2">
                           <FaShieldAlt className="w-4 h-4" />
                           <span>Selamat! Anda mendapatkan pengiriman gratis</span>
