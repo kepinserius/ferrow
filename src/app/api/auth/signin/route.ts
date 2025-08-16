@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 
       try {
         const { data, error: resendError } = await resend.emails.send({
-          from: "Ferrow <onboarding@resend.dev>", // You can customize this
+          from: "Ferrow <noreply@ferrowpet.com>", // You can customize this
           to: [email],
           subject: "🐾 Verifikasi Akun Ferrow Anda",
           html: `
