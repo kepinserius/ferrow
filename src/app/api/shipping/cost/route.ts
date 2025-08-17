@@ -1,51 +1,86 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-const RAJAONGKIR_API_KEY = process.env.RAJAONGKIR_API_KEY
-const RAJAONGKIR_BASE_URL = "https://api.rajaongkir.com/starter"
-
 export async function POST(request: NextRequest) {
   try {
-    if (!RAJAONGKIR_API_KEY) {
-      return NextResponse.json({ error: "Raja Ongkir API key not configured" }, { status: 500 })
-    }
-
     const body = await request.json()
     const { origin, destination, weight, courier } = body
 
-    if (!origin || !destination || !weight || !courier) {
-      return NextResponse.json({ error: "Origin, destination, weight, and courier are required" }, { status: 400 })
+    // Validate required fields
+    if (!origin || !destination || !weight) {
+      return NextResponse.json(
+        { success: false, error: "Origin, destination, and weight are required" },
+        { status: 400 },
+      )
     }
 
-    const formData = new FormData()
-    formData.append("origin", origin.toString())
-    formData.append("destination", destination.toString())
-    formData.append("weight", weight.toString())
-    formData.append("courier", courier)
+    // Default couriers if not specified
+    const couriers = courier ? [courier] : ["jne", "tiki", "pos"]
+    const results: { courier: any; courierCode: any; service: any; cost: any; estimatedDelivery: string; description: any }[] = []
 
-    const response = await fetch(`${RAJAONGKIR_BASE_URL}/cost`, {
-      method: "POST",
-      headers: {
-        key: RAJAONGKIR_API_KEY,
-      },
-      body: formData,
-    })
+    // Fetch cost for each courier
+    for (const courierCode of couriers) {
+      try {
+        const response = await fetch("https://api.rajaongkir.com/starter/cost", {
+          method: "POST",
+          headers: {
+            key: process.env.RAJAONGKIR_API_KEY!,
+            "content-type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            origin: origin.toString(),
+            destination: destination.toString(),
+            weight: weight.toString(),
+            courier: courierCode,
+          }),
+        })
 
-    if (!response.ok) {
-      throw new Error(`Raja Ongkir API error: ${response.status}`)
+        if (!response.ok) {
+          console.error(`Error fetching cost for ${courierCode}:`, response.status)
+          continue
+        }
+
+        const data = await response.json()
+
+        if (data.rajaongkir.status.code === 200 && data.rajaongkir.results.length > 0) {
+          const courierData = data.rajaongkir.results[0]
+
+          // Process each service for this courier
+          courierData.costs.forEach((cost: any) => {
+            results.push({
+              courier: courierData.name.toUpperCase(),
+              courierCode: courierData.code,
+              service: cost.service,
+              cost: cost.cost[0].value,
+              estimatedDelivery: cost.cost[0].etd + " hari",
+              description: cost.description,
+            })
+          })
+        }
+      } catch (courierError) {
+        console.error(`Error processing courier ${courierCode}:`, courierError)
+        continue
+      }
     }
 
-    const data = await response.json()
-
-    if (data.rajaongkir.status.code !== 200) {
-      throw new Error(data.rajaongkir.status.description)
+    if (results.length === 0) {
+      return NextResponse.json({ success: false, error: "No shipping options available" }, { status: 404 })
     }
+
+    // Sort by cost (cheapest first)
+    results.sort((a, b) => a.cost - b.cost)
 
     return NextResponse.json({
       success: true,
-      costs: data.rajaongkir.results,
+      shippingOptions: results,
     })
   } catch (error: any) {
     console.error("Error calculating shipping cost:", error)
-    return NextResponse.json({ error: error.message || "Failed to calculate shipping cost" }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "Failed to calculate shipping cost",
+      },
+      { status: 500 },
+    )
   }
 }

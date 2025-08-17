@@ -1,18 +1,11 @@
 import { NextResponse } from "next/server"
 
-const RAJAONGKIR_API_KEY = process.env.RAJAONGKIR_API_KEY
-const RAJAONGKIR_BASE_URL = "https://api.rajaongkir.com/starter"
-
 export async function GET() {
   try {
-    if (!RAJAONGKIR_API_KEY) {
-      return NextResponse.json({ error: "Raja Ongkir API key not configured" }, { status: 500 })
-    }
-
-    const response = await fetch(`${RAJAONGKIR_BASE_URL}/province`, {
+    const response = await fetch("https://api.rajaongkir.com/starter/province", {
       method: "GET",
       headers: {
-        key: RAJAONGKIR_API_KEY,
+        key: process.env.RAJAONGKIR_API_KEY!,
       },
     })
 
@@ -32,6 +25,12 @@ export async function GET() {
     })
   } catch (error: any) {
     console.error("Error fetching provinces:", error)
-    return NextResponse.json({ error: error.message || "Failed to fetch provinces" }, { status: 500 })
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message || "Failed to fetch provinces",
+      },
+      { status: 500 },
+    )
   }
 }

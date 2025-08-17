@@ -100,7 +100,7 @@ export default function Checkout() {
   const loadProvinces = async () => {
     setLoadingProvinces(true)
     try {
-      const response = await fetch("/api/rajaongkir/provinces")
+      const response = await fetch("/api/shipping/provinces")
       const data = await response.json()
 
       if (data.success) {
@@ -124,7 +124,7 @@ export default function Checkout() {
 
     setLoadingCities(true)
     try {
-      const response = await fetch(`/api/rajaongkir/cities?province_id=${provinceId}`)
+      const response = await fetch(`/api/shipping/cities?province_id=${provinceId}`)
       const data = await response.json()
 
       if (data.success) {
@@ -153,7 +153,7 @@ export default function Checkout() {
       // Calculate total weight (assuming 1kg per item for demo)
       const totalWeight = cartItems.reduce((total, item) => total + item.quantity * 1000, 0) // in grams
 
-      const response = await fetch("/api/rajaongkir/cost", {
+      const response = await fetch("/api/shipping/cost", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
