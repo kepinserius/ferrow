@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabaseAdmin"
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY
+const MIDTRANS_CLIENT_KEY = process.env.MIDTRANS_CLIENT_KEY   // ✅ ditambahkan
 const MIDTRANS_IS_PRODUCTION = process.env.MIDTRANS_IS_PRODUCTION === "true"
 const MIDTRANS_BASE_URL = MIDTRANS_IS_PRODUCTION
   ? "https://app.midtrans.com/snap/v1/transactions"
@@ -9,8 +10,8 @@ const MIDTRANS_BASE_URL = MIDTRANS_IS_PRODUCTION
 
 export async function POST(request: NextRequest) {
   try {
-    if (!MIDTRANS_SERVER_KEY) {
-      return NextResponse.json({ error: "Midtrans server key not configured" }, { status: 500 })
+    if (!MIDTRANS_SERVER_KEY || !MIDTRANS_CLIENT_KEY) {   // ✅ validasi keduanya
+      return NextResponse.json({ error: "Midtrans server/client key not configured" }, { status: 500 })
     }
 
     const body = await request.json()
@@ -140,6 +141,7 @@ export async function POST(request: NextRequest) {
       success: true,
       token: result.token,
       redirect_url: result.redirect_url,
+      client_key: MIDTRANS_CLIENT_KEY,   // ✅ dikembalikan supaya frontend bisa pakai Snap.js
       message: "Payment transaction created successfully",
     })
   } catch (error: any) {
