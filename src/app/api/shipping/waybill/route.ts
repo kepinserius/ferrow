@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     formData.append("waybill", waybill)
     formData.append("courier", courier)
 
-    const response = await fetch("https://api.rajaongkir.com/starter/waybill", {
+    const response = await fetch("https://rajaongkir.komerce.id/api/v1/track/waybill?last_phone_number=null", {
       method: "POST",
       headers: { key: apiKey },
       body: formData,

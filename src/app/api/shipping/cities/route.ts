@@ -1,25 +1,48 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { callRajaOngkir } from "@/lib/rajaongkir"
+import { NextResponse } from "next/server"
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const provinceId = searchParams.get("province")
+    const provinceId = searchParams.get("province_id")
 
     if (!provinceId) {
-      return NextResponse.json(
-        { success: false, error: "Province ID is required" },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: "province_id is required" }, { status: 400 })
     }
 
-    const cities = await callRajaOngkir(`city?province=${provinceId}`)
+    const apiKey = process.env.KOMMERCE_API_KEY
+    if (!apiKey) {
+      return NextResponse.json({ error: "KOMMERCE_API_KEY not configured" }, { status: 500 })
+    }
+
+    console.log("[v0] Fetching cities for province:", provinceId)
+    const response = await fetch("https://api.kommerce.id/shipping/domestic-destination", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Kommerce API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+
+    // Filter cities by province_id
+    const cities =
+      data.destinations
+        ?.filter((dest: any) => dest.province_id.toString() === provinceId.toString())
+        .map((dest: any) => ({
+          city_id: dest.city_id,
+          city_name: dest.city_name,
+          type: dest.type,
+          postal_code: dest.postal_code,
+        })) || []
+
+    console.log("[v0] Found cities:", cities.length)
     return NextResponse.json({ success: true, cities })
   } catch (error: any) {
-    console.error("[Cities API] Error:", error)
-    return NextResponse.json(
-      { success: false, error: error.message || "Failed to fetch cities" },
-      { status: 500 },
-    )
+    console.error("[v0] Kommerce Cities API Error:", error)
+    return NextResponse.json({ success: false, error: error.message || "Failed to fetch cities" }, { status: 500 })
   }
 }
