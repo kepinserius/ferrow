@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
-import { FaCheckCircle, FaSpinner, FaExclamationTriangle } from "react-icons/fa"
+import { FaCheckCircle, FaSpinner, FaExclamationTriangle, FaClock, FaTimesCircle } from "react-icons/fa"
 import Link from "next/link"
 
 interface OrderDetails {
@@ -14,6 +14,53 @@ interface OrderDetails {
   payment_status: string
   transaction_id: string
   payment_method: string
+}
+
+const getStatusDisplay = (status: string) => {
+  const normalizedStatus = status.toLowerCase()
+
+  if (normalizedStatus === "capture" || normalizedStatus === "settlement" || normalizedStatus === "success") {
+    return {
+      icon: FaCheckCircle,
+      color: "text-green-500",
+      bgColor: "from-green-50 to-blue-50",
+      title: "Pembayaran Berhasil!",
+      subtitle: "Terima kasih atas pembelian Anda",
+      statusColor: "text-green-600",
+    }
+  } else if (normalizedStatus === "pending") {
+    return {
+      icon: FaClock,
+      color: "text-yellow-500",
+      bgColor: "from-yellow-50 to-orange-50",
+      title: "Pembayaran Sedang Diproses",
+      subtitle: "Silakan selesaikan pembayaran Anda",
+      statusColor: "text-yellow-600",
+    }
+  } else if (
+    normalizedStatus === "deny" ||
+    normalizedStatus === "cancel" ||
+    normalizedStatus === "expire" ||
+    normalizedStatus === "failure"
+  ) {
+    return {
+      icon: FaTimesCircle,
+      color: "text-red-500",
+      bgColor: "from-red-50 to-orange-50",
+      title: "Pembayaran Gagal",
+      subtitle: "Terjadi masalah dengan pembayaran Anda",
+      statusColor: "text-red-600",
+    }
+  } else {
+    return {
+      icon: FaClock,
+      color: "text-blue-500",
+      bgColor: "from-blue-50 to-indigo-50",
+      title: "Status Pembayaran",
+      subtitle: "Mohon periksa status pembayaran Anda",
+      statusColor: "text-blue-600",
+    }
+  }
 }
 
 export default function PaymentFinish() {
@@ -109,8 +156,11 @@ export default function PaymentFinish() {
     )
   }
 
+  const statusDisplay = orderDetails ? getStatusDisplay(orderDetails.payment_status) : getStatusDisplay("pending")
+  const StatusIcon = statusDisplay.icon
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+    <div className={`min-h-screen bg-gradient-to-br ${statusDisplay.bgColor} flex items-center justify-center p-4`}>
       <motion.div
         className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full"
         initial={{ opacity: 0, y: 20 }}
@@ -123,10 +173,10 @@ export default function PaymentFinish() {
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
           >
-            <FaCheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4" />
+            <StatusIcon className={`w-20 h-20 ${statusDisplay.color} mx-auto mb-4`} />
           </motion.div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Pembayaran Berhasil!</h1>
-          <p className="text-gray-600">Terima kasih atas pembelian Anda</p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">{statusDisplay.title}</h1>
+          <p className="text-gray-600">{statusDisplay.subtitle}</p>
         </div>
 
         {orderDetails && (
@@ -146,20 +196,35 @@ export default function PaymentFinish() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>
-                  <span className="font-semibold text-green-600 capitalize">{orderDetails.payment_status}</span>
+                  <span className={`font-semibold ${statusDisplay.statusColor} capitalize`}>
+                    {orderDetails.payment_status}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">ID Transaksi:</span>
-                  <span className="font-mono text-xs">{orderDetails.transaction_id}</span>
-                </div>
+                {orderDetails.transaction_id && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">ID Transaksi:</span>
+                    <span className="font-mono text-xs">{orderDetails.transaction_id}</span>
+                  </div>
+                )}
               </div>
             </div>
 
-            <div className="bg-blue-50 rounded-xl p-4">
-              <h4 className="font-semibold text-blue-800 mb-2">Informasi Selanjutnya</h4>
-              <p className="text-blue-700 text-sm">
-                Konfirmasi pesanan telah dikirim ke email <strong>{orderDetails.customer_email}</strong>. Pesanan Anda
-                akan segera diproses dan dikirim sesuai alamat yang telah ditentukan.
+            <div
+              className={`${orderDetails.payment_status.toLowerCase() === "pending" ? "bg-yellow-50" : "bg-blue-50"} rounded-xl p-4`}
+            >
+              <h4
+                className={`font-semibold ${orderDetails.payment_status.toLowerCase() === "pending" ? "text-yellow-800" : "text-blue-800"} mb-2`}
+              >
+                {orderDetails.payment_status.toLowerCase() === "pending"
+                  ? "Menunggu Pembayaran"
+                  : "Informasi Selanjutnya"}
+              </h4>
+              <p
+                className={`${orderDetails.payment_status.toLowerCase() === "pending" ? "text-yellow-700" : "text-blue-700"} text-sm`}
+              >
+                {orderDetails.payment_status.toLowerCase() === "pending"
+                  ? `Silakan selesaikan pembayaran Anda. Konfirmasi akan dikirim ke email ${orderDetails.customer_email} setelah pembayaran berhasil.`
+                  : `Konfirmasi pesanan telah dikirim ke email ${orderDetails.customer_email}. Pesanan Anda akan segera diproses dan dikirim sesuai alamat yang telah ditentukan.`}
               </p>
             </div>
           </div>
