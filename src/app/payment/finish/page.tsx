@@ -1,131 +1,183 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
+import { FaCheckCircle, FaSpinner, FaExclamationTriangle } from "react-icons/fa"
 import Link from "next/link"
-import { FaCheckCircle, FaHome, FaReceipt } from "react-icons/fa"
-import Navbar from "@/components/Navbar"
-import Footer from "@/components/Footer"
-import { useSearchParams } from "next/navigation"
+
+interface OrderDetails {
+  order_number: string
+  total_amount: number
+  customer_name: string
+  customer_email: string
+  payment_status: string
+  transaction_id: string
+  payment_method: string
+}
 
 export default function PaymentFinish() {
   const searchParams = useSearchParams()
-  const [orderData, setOrderData] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const orderId = searchParams.get("order_id")
-    const statusCode = searchParams.get("status_code")
-    const transactionStatus = searchParams.get("transaction_status")
+    const verifyPayment = async () => {
+      try {
+        const orderId = searchParams.get("order_id")
+        const transactionStatus = searchParams.get("transaction_status")
+        const transactionId = searchParams.get("transaction_id")
+        const statusCode = searchParams.get("status_code")
 
-    // Simulate order data fetch (you can implement actual API call)
-    setTimeout(() => {
-      setOrderData({
-        order_id: orderId,
-        status_code: statusCode,
-        transaction_status: transactionStatus,
-        order_number: `ORD-${Date.now()}`,
-        total_amount: 150000,
-      })
-      setIsLoading(false)
-    }, 1000)
+        console.log("[v0] Payment finish params:", { orderId, transactionStatus, transactionId, statusCode })
+
+        if (!orderId) {
+          throw new Error("Order ID tidak ditemukan")
+        }
+
+        const response = await fetch("/api/payment/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            order_id: orderId,
+            transaction_status: transactionStatus,
+            transaction_id: transactionId,
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.error || "Gagal memverifikasi pembayaran")
+        }
+
+        const data = await response.json()
+        console.log("[v0] Payment verification result:", data)
+
+        setOrderDetails(data.order)
+      } catch (err: any) {
+        console.error("[v0] Payment verification error:", err.message)
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    verifyPayment()
   }, [searchParams])
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <main className="bg-ferrow-cream-400 text-ferrow-green-800 min-h-screen">
-        <Navbar />
-        <div className="container mx-auto px-4 pt-32 pb-20">
-          <div className="flex justify-center items-center py-20">
-            <div className="relative w-20 h-20">
-              <motion.div
-                className="absolute inset-0 rounded-full border-4 border-t-ferrow-red-500 border-r-transparent border-b-transparent border-l-transparent"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
-              />
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+        <motion.div className="text-center" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
+          <FaSpinner className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-800">Memverifikasi Pembayaran...</h2>
+          <p className="text-gray-600 mt-2">Mohon tunggu sebentar</p>
+        </motion.div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
+        <motion.div
+          className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <FaExclamationTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Terjadi Kesalahan</h1>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <div className="space-y-3">
+            <Link href="/cart">
+              <button className="w-full bg-blue-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-600 transition-colors">
+                Kembali ke Keranjang
+              </button>
+            </Link>
+            <Link href="/">
+              <button className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
+                Kembali ke Beranda
+              </button>
+            </Link>
           </div>
-        </div>
-        <Footer />
-      </main>
+        </motion.div>
+      </div>
     )
   }
 
   return (
-    <main className="bg-ferrow-cream-400 text-ferrow-green-800 min-h-screen">
-      <Navbar />
-      <div className="container mx-auto px-4 pt-32 pb-20">
-        <motion.div
-          className="max-w-2xl mx-auto"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="glass rounded-xl border border-ferrow-yellow-400/30 p-8 text-center">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="flex justify-center mb-6"
-            >
-              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center">
-                <FaCheckCircle size={40} className="text-white" />
-              </div>
-            </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+      <motion.div
+        className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="text-center mb-8">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          >
+            <FaCheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4" />
+          </motion.div>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Pembayaran Berhasil!</h1>
+          <p className="text-gray-600">Terima kasih atas pembelian Anda</p>
+        </div>
 
-            <h1 className="text-3xl font-bold mb-4 text-green-600">Pembayaran Berhasil!</h1>
-
-            <p className="text-ferrow-green-800/70 mb-6">Terima kasih! Pembayaran Anda telah berhasil diproses.</p>
-
-            {orderData && (
-              <div className="bg-ferrow-cream-400/50 rounded-lg p-4 mb-6 text-left">
-                <h3 className="font-bold mb-3">Detail Pesanan:</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Nomor Pesanan:</span>
-                    <span className="font-mono">{orderData.order_number}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Status Transaksi:</span>
-                    <span className="capitalize text-green-600 font-medium">{orderData.transaction_status}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Total Pembayaran:</span>
-                    <span className="font-bold text-ferrow-red-500">
-                      Rp {orderData.total_amount?.toLocaleString("id-ID")}
-                    </span>
-                  </div>
+        {orderDetails && (
+          <div className="space-y-4 mb-8">
+            <div className="bg-gray-50 rounded-xl p-4">
+              <h3 className="font-semibold text-gray-800 mb-3">Detail Pesanan</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Nomor Pesanan:</span>
+                  <span className="font-semibold">{orderDetails.order_number}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total Pembayaran:</span>
+                  <span className="font-bold text-green-600">
+                    Rp {orderDetails.total_amount.toLocaleString("id-ID")}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Status:</span>
+                  <span className="font-semibold text-green-600 capitalize">{orderDetails.payment_status}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">ID Transaksi:</span>
+                  <span className="font-mono text-xs">{orderDetails.transaction_id}</span>
                 </div>
               </div>
-            )}
+            </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="btn btn-primary flex items-center gap-2"
-                >
-                  <FaHome />
-                  <span>Kembali ke Beranda</span>
-                </motion.button>
-              </Link>
-
-              <Link href="/orders">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="glass border border-ferrow-yellow-400/30 px-6 py-3 rounded-lg hover:bg-ferrow-yellow-400/10 transition-colors flex items-center gap-2"
-                >
-                  <FaReceipt />
-                  <span>Lihat Pesanan</span>
-                </motion.button>
-              </Link>
+            <div className="bg-blue-50 rounded-xl p-4">
+              <h4 className="font-semibold text-blue-800 mb-2">Informasi Selanjutnya</h4>
+              <p className="text-blue-700 text-sm">
+                Konfirmasi pesanan telah dikirim ke email <strong>{orderDetails.customer_email}</strong>. Pesanan Anda
+                akan segera diproses dan dikirim sesuai alamat yang telah ditentukan.
+              </p>
             </div>
           </div>
-        </motion.div>
-      </div>
-      <Footer />
-    </main>
+        )}
+
+        <div className="space-y-3">
+          <Link href="/orders">
+            <button className="w-full bg-blue-500 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-600 transition-colors">
+              Lihat Pesanan Saya
+            </button>
+          </Link>
+          <Link href="/">
+            <button className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors">
+              Lanjut Belanja
+            </button>
+          </Link>
+        </div>
+      </motion.div>
+    </div>
   )
 }
