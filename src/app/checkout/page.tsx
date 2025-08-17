@@ -25,9 +25,23 @@ interface CustomerData {
 
 interface ShippingOption {
   courier: string
+  courierCode: string
   service: string
   cost: number
   estimatedDelivery: string
+  description?: string
+}
+
+interface Province {
+  province_id: string
+  province: string
+}
+
+interface City {
+  city_id: string
+  city_name: string
+  type: string
+  postal_code: string
 }
 
 export default function Checkout() {
@@ -51,36 +65,17 @@ export default function Checkout() {
   const [selectedShipping, setSelectedShipping] = useState<ShippingOption | null>(null)
   const [paymentMethod, setPaymentMethod] = useState("midtrans")
 
-  // Mock shipping options
-  const shippingOptions: ShippingOption[] = [
-    {
-      courier: "JNE",
-      service: "REG",
-      cost: 15000,
-      estimatedDelivery: "2-3 hari",
-    },
-    {
-      courier: "JNE",
-      service: "YES",
-      cost: 25000,
-      estimatedDelivery: "1-2 hari",
-    },
-    {
-      courier: "TIKI",
-      service: "REG",
-      cost: 12000,
-      estimatedDelivery: "2-4 hari",
-    },
-    {
-      courier: "POS",
-      service: "Nextday",
-      cost: 20000,
-      estimatedDelivery: "1 hari",
-    },
-  ]
+  // RajaOngkir API states
+  const [provinces, setProvinces] = useState<Province[]>([])
+  const [cities, setCities] = useState<City[]>([])
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([])
+  const [loadingProvinces, setLoadingProvinces] = useState(false)
+  const [loadingCities, setLoadingCities] = useState(false)
+  const [loadingShipping, setLoadingShipping] = useState(false)
 
   useEffect(() => {
     setIsMounted(true)
+    loadProvinces()
   }, [])
 
   // Redirect if no cart items
@@ -101,15 +96,159 @@ export default function Checkout() {
     }
   }, [user, customerData.name, customerData.email])
 
-  // Set default shipping option
-  useEffect(() => {
-    if (shippingOptions.length > 0 && !selectedShipping) {
-      setSelectedShipping(shippingOptions[0])
+  // Load provinces on mount
+  const loadProvinces = async () => {
+    setLoadingProvinces(true)
+    try {
+      const response = await fetch("/api/rajaongkir/provinces")
+      const data = await response.json()
+
+      if (data.success) {
+        setProvinces(data.provinces)
+      } else {
+        console.error("Failed to load provinces:", data.error)
+      }
+    } catch (error) {
+      console.error("Error loading provinces:", error)
+    } finally {
+      setLoadingProvinces(false)
     }
-  }, [shippingOptions, selectedShipping])
+  }
+
+  // Load cities based on selected province
+  const loadCities = async (provinceId: string) => {
+    if (!provinceId) {
+      setCities([])
+      return
+    }
+
+    setLoadingCities(true)
+    try {
+      const response = await fetch(`/api/rajaongkir/cities?province_id=${provinceId}`)
+      const data = await response.json()
+
+      if (data.success) {
+        setCities(data.cities)
+      } else {
+        console.error("Failed to load cities:", data.error)
+        setCities([])
+      }
+    } catch (error) {
+      console.error("Error loading cities:", error)
+      setCities([])
+    } finally {
+      setLoadingCities(false)
+    }
+  }
+
+  // Calculate shipping cost using RajaOngkir API
+  const calculateShippingCost = async () => {
+    if (!customerData.cityId) {
+      setShippingOptions([])
+      return
+    }
+
+    setLoadingShipping(true)
+    try {
+      // Calculate total weight (assuming 1kg per item for demo)
+      const totalWeight = cartItems.reduce((total, item) => total + item.quantity * 1000, 0) // in grams
+
+      const response = await fetch("/api/rajaongkir/cost", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          origin: "501", // Yogyakarta (change this to your origin city ID)
+          destination: customerData.cityId,
+          weight: Math.max(totalWeight, 1000), // minimum 1kg
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setShippingOptions(data.shippingOptions)
+        // Auto-select first option
+        if (data.shippingOptions.length > 0) {
+          setSelectedShipping(data.shippingOptions[0])
+        }
+      } else {
+        console.error("Failed to calculate shipping:", data.error)
+        setShippingOptions([])
+      }
+    } catch (error) {
+      console.error("Error calculating shipping:", error)
+      setShippingOptions([])
+    } finally {
+      setLoadingShipping(false)
+    }
+  }
+
+  // Handle province change
+  const handleProvinceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const provinceId = e.target.value
+    const provinceName = provinces.find((p) => p.province_id === provinceId)?.province || ""
+
+    setCustomerData((prev) => ({
+      ...prev,
+      provinceId,
+      province: provinceName,
+      cityId: "",
+      city: "",
+    }))
+
+    setCities([])
+    setShippingOptions([])
+    setSelectedShipping(null)
+
+    if (provinceId) {
+      loadCities(provinceId)
+    }
+
+    // Clear province error if exists
+    if (errors.provinceId) {
+      setErrors((prev) => ({
+        ...prev,
+        provinceId: "",
+      }))
+    }
+  }
+
+  // Handle city change
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const cityId = e.target.value
+    const cityData = cities.find((c) => c.city_id === cityId)
+
+    setCustomerData((prev) => ({
+      ...prev,
+      cityId,
+      city: cityData ? `${cityData.type} ${cityData.city_name}` : "",
+      postalCode: cityData?.postal_code || prev.postalCode,
+    }))
+
+    setShippingOptions([])
+    setSelectedShipping(null)
+
+    // Clear city error if exists
+    if (errors.cityId) {
+      setErrors((prev) => ({
+        ...prev,
+        cityId: "",
+      }))
+    }
+  }
+
+  // Calculate shipping cost when city changes
+  useEffect(() => {
+    if (customerData.cityId && cartItems.length > 0) {
+      calculateShippingCost()
+    }
+  }, [customerData.cityId, cartItems])
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {}
+    
     if (!customerData.name.trim()) {
       newErrors.name = "Nama lengkap wajib diisi"
     }
@@ -126,22 +265,16 @@ export default function Checkout() {
     if (!customerData.address.trim()) {
       newErrors.address = "Alamat lengkap wajib diisi"
     }
-    if (!customerData.city.trim()) {
-      newErrors.city = "Kota wajib diisi"
+    if (!customerData.provinceId) {
+      newErrors.provinceId = "Provinsi wajib dipilih"
     }
-    if (!customerData.province.trim()) {
-      newErrors.province = "Provinsi wajib diisi"
+    if (!customerData.cityId) {
+      newErrors.cityId = "Kota wajib dipilih"
     }
     if (!customerData.postalCode.trim()) {
       newErrors.postalCode = "Kode pos wajib diisi"
     } else if (!/^[0-9]{5}$/.test(customerData.postalCode)) {
       newErrors.postalCode = "Kode pos harus 5 digit angka"
-    }
-    if (customerData.cityId && !/^[0-9]+$/.test(customerData.cityId)) {
-      newErrors.cityId = "ID Kota harus berupa angka"
-    }
-    if (customerData.provinceId && !/^[0-9]+$/.test(customerData.provinceId)) {
-      newErrors.provinceId = "ID Provinsi harus berupa angka"
     }
     if (!selectedShipping) {
       newErrors.shipping = "Pilih metode pengiriman"
@@ -186,7 +319,7 @@ export default function Checkout() {
         returnUrl: "/checkout",
       }),
     )
-    router.push("/user/login-user") // This should match your file path
+    router.push("/user/login-user")
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -312,8 +445,8 @@ export default function Checkout() {
     customerData.email.trim() &&
     customerData.phone.trim() &&
     customerData.address.trim() &&
-    customerData.city.trim() &&
-    customerData.province.trim() &&
+    customerData.provinceId &&
+    customerData.cityId &&
     customerData.postalCode.trim() &&
     selectedShipping &&
     Object.keys(errors).length === 0
@@ -535,88 +668,67 @@ export default function Checkout() {
                       />
                       {errors.address && <p className="text-ferrow-red-500 text-sm mt-1">{errors.address}</p>}
                     </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-semibold text-ferrow-green-800 mb-2">
                           Provinsi <span className="text-ferrow-red-500">*</span>
                         </label>
-                        <input
-                          type="text"
-                          name="province"
-                          value={customerData.province}
-                          onChange={handleInputChange}
-                          disabled={!user}
-                          className={`w-full px-4 py-4 bg-white border rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ferrow-green-500/20 ${
-                            errors.province
-                              ? "border-ferrow-red-500 focus:border-ferrow-red-500"
-                              : "border-ferrow-yellow-400/30 focus:border-ferrow-green-500"
-                          } ${!user ? "opacity-50 cursor-not-allowed" : ""} text-ferrow-green-800 placeholder-ferrow-green-600/50`}
-                          placeholder="Contoh: Jawa Timur"
-                          required
-                        />
-                        {errors.province && <p className="text-ferrow-red-500 text-sm mt-1">{errors.province}</p>}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-ferrow-green-800 mb-2">
-                          ID Provinsi <span className="text-ferrow-green-600 text-xs">(Opsional)</span>
-                        </label>
-                        <input
-                          type="number"
+                        <select
                           name="provinceId"
                           value={customerData.provinceId}
-                          onChange={handleInputChange}
-                          disabled={!user}
+                          onChange={handleProvinceChange}
+                          disabled={!user || loadingProvinces}
                           className={`w-full px-4 py-4 bg-white border rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ferrow-green-500/20 ${
                             errors.provinceId
                               ? "border-ferrow-red-500 focus:border-ferrow-red-500"
                               : "border-ferrow-yellow-400/30 focus:border-ferrow-green-500"
-                          } ${!user ? "opacity-50 cursor-not-allowed" : ""} text-ferrow-green-800 placeholder-ferrow-green-600/50`}
-                          placeholder="Untuk perhitungan ongkir"
-                        />
+                          } ${!user || loadingProvinces ? "opacity-50 cursor-not-allowed" : ""} text-ferrow-green-800`}
+                          required
+                        >
+                          <option value="">{loadingProvinces ? "Memuat provinsi..." : "Pilih Provinsi"}</option>
+                          {provinces.map((province) => (
+                            <option key={province.province_id} value={province.province_id}>
+                              {province.province}
+                            </option>
+                          ))}
+                        </select>
                         {errors.provinceId && <p className="text-ferrow-red-500 text-sm mt-1">{errors.provinceId}</p>}
                       </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
                       <div>
                         <label className="block text-sm font-semibold text-ferrow-green-800 mb-2">
                           Kota <span className="text-ferrow-red-500">*</span>
                         </label>
-                        <input
-                          type="text"
-                          name="city"
-                          value={customerData.city}
-                          onChange={handleInputChange}
-                          disabled={!user}
-                          className={`w-full px-4 py-4 bg-white border rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ferrow-green-500/20 ${
-                            errors.city
-                              ? "border-ferrow-red-500 focus:border-ferrow-red-500"
-                              : "border-ferrow-yellow-400/30 focus:border-ferrow-green-500"
-                          } ${!user ? "opacity-50 cursor-not-allowed" : ""} text-ferrow-green-800 placeholder-ferrow-green-600/50`}
-                          placeholder="Contoh: Malang"
-                          required
-                        />
-                        {errors.city && <p className="text-ferrow-red-500 text-sm mt-1">{errors.city}</p>}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-ferrow-green-800 mb-2">
-                          ID Kota <span className="text-ferrow-green-600 text-xs">(Opsional)</span>
-                        </label>
-                        <input
-                          type="number"
+                        <select
                           name="cityId"
                           value={customerData.cityId}
-                          onChange={handleInputChange}
-                          disabled={!user}
+                          onChange={handleCityChange}
+                          disabled={!user || !customerData.provinceId || loadingCities}
                           className={`w-full px-4 py-4 bg-white border rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-ferrow-green-500/20 ${
                             errors.cityId
                               ? "border-ferrow-red-500 focus:border-ferrow-red-500"
                               : "border-ferrow-yellow-400/30 focus:border-ferrow-green-500"
-                          } ${!user ? "opacity-50 cursor-not-allowed" : ""} text-ferrow-green-800 placeholder-ferrow-green-600/50`}
-                          placeholder="Untuk perhitungan ongkir"
-                        />
+                          } ${!user || !customerData.provinceId || loadingCities ? "opacity-50 cursor-not-allowed" : ""} text-ferrow-green-800`}
+                          required
+                        >
+                          <option value="">
+                            {loadingCities
+                              ? "Memuat kota..."
+                              : customerData.provinceId
+                                ? "Pilih Kota"
+                                : "Pilih provinsi dulu"}
+                          </option>
+                          {cities.map((city) => (
+                            <option key={city.city_id} value={city.city_id}>
+                              {city.type} {city.city_name}
+                            </option>
+                          ))}
+                        </select>
                         {errors.cityId && <p className="text-ferrow-red-500 text-sm mt-1">{errors.cityId}</p>}
                       </div>
                     </div>
+
                     <div>
                       <label className="block text-sm font-semibold text-ferrow-green-800 mb-2">
                         Kode Pos <span className="text-ferrow-red-500">*</span>
@@ -654,43 +766,65 @@ export default function Checkout() {
                     </div>
                     <span>Pilih Pengiriman</span>
                   </h2>
-                  <div className="space-y-4">
-                    {shippingOptions.map((option, index) => (
-                      <div
-                        key={index}
-                        className={`p-6 rounded-xl border transition-all duration-300 cursor-pointer ${
-                          !user
-                            ? "opacity-50 cursor-not-allowed"
-                            : selectedShipping === option
-                              ? "border-ferrow-green-500 bg-ferrow-green-500/10"
-                              : "border-ferrow-yellow-400/30 hover:border-ferrow-yellow-400/50 hover:bg-ferrow-yellow-400/5"
-                        }`}
-                        onClick={() => user && handleShippingChange(option)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <input
-                              type="radio"
-                              name="shipping"
-                              checked={selectedShipping === option}
-                              onChange={() => handleShippingChange(option)}
-                              disabled={!user}
-                              className="w-5 h-5 text-ferrow-green-500"
-                            />
-                            <div>
-                              <div className="font-bold text-ferrow-green-800 text-lg">
-                                {option.courier} - {option.service}
+
+                  {loadingShipping ? (
+                    <div className="flex items-center justify-center py-8">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 border-2 border-ferrow-green-500/30 border-t-ferrow-green-500 rounded-full animate-spin" />
+                        <span className="text-ferrow-green-700">Menghitung ongkos kirim...</span>
+                      </div>
+                    </div>
+                  ) : shippingOptions.length === 0 ? (
+                    <div className="text-center py-8">
+                      <FaTruck className="w-12 h-12 text-ferrow-green-400 mx-auto mb-4" />
+                      <p className="text-ferrow-green-700">
+                        {customerData.cityId
+                          ? "Tidak ada opsi pengiriman tersedia"
+                          : "Pilih kota tujuan untuk melihat opsi pengiriman"}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {shippingOptions.map((option, index) => (
+                        <div
+                          key={index}
+                          className={`p-6 rounded-xl border transition-all duration-300 cursor-pointer ${
+                            !user
+                              ? "opacity-50 cursor-not-allowed"
+                              : selectedShipping === option
+                                ? "border-ferrow-green-500 bg-ferrow-green-500/10"
+                                : "border-ferrow-yellow-400/30 hover:border-ferrow-yellow-400/50 hover:bg-ferrow-yellow-400/5"
+                          }`}
+                          onClick={() => user && handleShippingChange(option)}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <input
+                                type="radio"
+                                name="shipping"
+                                checked={selectedShipping === option}
+                                onChange={() => handleShippingChange(option)}
+                                disabled={!user}
+                                className="w-5 h-5 text-ferrow-green-500"
+                              />
+                              <div>
+                                <div className="font-bold text-ferrow-green-800 text-lg">
+                                  {option.courier} - {option.service}
+                                </div>
+                                <div className="text-ferrow-green-700">Estimasi: {option.estimatedDelivery}</div>
+                                {option.description && (
+                                  <div className="text-sm text-ferrow-green-600">{option.description}</div>
+                                )}
                               </div>
-                              <div className="text-ferrow-green-700">Estimasi: {option.estimatedDelivery}</div>
+                            </div>
+                            <div className="text-xl font-bold text-ferrow-green-800">
+                              Rp {option.cost.toLocaleString("id-ID")}
                             </div>
                           </div>
-                          <div className="text-xl font-bold text-ferrow-green-800">
-                            Rp {option.cost.toLocaleString("id-ID")}
-                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                   {errors.shipping && <p className="text-ferrow-red-500 text-sm mt-2">{errors.shipping}</p>}
                 </motion.div>
 
