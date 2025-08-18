@@ -15,10 +15,16 @@ export async function GET(request: Request) {
     }
 
     console.log("[v0] Fetching cities for province:", provinceId)
-    const response = await fetch("https://api.kommerce.id/shipping/domestic-destination", {
+    // const response = await fetch("https://api.kommerce.id/shipping/domestic-destination", {
+    //   method: "GET",
+    //   headers: {
+    //     Authorization: `Bearer ${apiKey}`,
+    //   },
+    // })
+    const response = await fetch(`https://rajaongkir.komerce.id/api/v1/destination/city/${provinceId}`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Key: `${apiKey}`,
       },
     })
 
@@ -28,15 +34,23 @@ export async function GET(request: Request) {
 
     const data = await response.json()
 
+    console.log(data)
+
     // Filter cities by province_id
+    // const cities =
+    //   data.destinations
+    //     ?.filter((dest: any) => dest.province_id.toString() === provinceId.toString())
+    //     .map((dest: any) => ({
+    //       city_id: dest.city_id,
+    //       city_name: dest.city_name,
+    //       type: dest.type,
+    //       postal_code: dest.postal_code,
+    //     })) || []
+
     const cities =
-      data.destinations
-        ?.filter((dest: any) => dest.province_id.toString() === provinceId.toString())
-        .map((dest: any) => ({
-          city_id: dest.city_id,
-          city_name: dest.city_name,
-          type: dest.type,
-          postal_code: dest.postal_code,
+      data.data.map((city: any) => ({
+          city_id: city.id,
+          city_name: city.name
         })) || []
 
     console.log("[v0] Found cities:", cities.length)
