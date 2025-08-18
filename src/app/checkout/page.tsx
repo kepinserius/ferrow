@@ -23,13 +23,22 @@ interface CustomerData {
   postalCode: string
 }
 
+// interface ShippingOption {
+//   courier: string
+//   courierCode: string
+//   service: string
+//   cost: number
+//   estimatedDelivery: string
+//   description?: string
+// }
+
 interface ShippingOption {
-  courier: string
-  courierCode: string
-  service: string
+  code: string
   cost: number
-  estimatedDelivery: string
   description?: string
+  etd?: string
+  name: string
+  service: string
 }
 
 interface Province {
@@ -166,12 +175,21 @@ export default function Checkout() {
       })
 
       const data = await response.json()
-
       if (data.success) {
-        setShippingOptions(data.shippingOptions)
+        // setShippingOptions(data.shippingOptions)
+        const options: ShippingOption[] = data.results.data.map((e: ShippingOption) => ({
+          code: e.code,
+          cost: e.cost,
+          description: e.description,
+          etd: e.etd,
+          name: e.name,
+          service: e.service
+        }));
+
+        setShippingOptions(options);
         // Auto-select first option
-        if (data.shippingOptions.length > 0) {
-          setSelectedShipping(data.shippingOptions[0])
+        if (options.length > 0) { // if (data.shippingOptions.length > 0)
+          setSelectedShipping(shippingOptions[0]) // setSelectedShipping(data.shippingOptions[0])
         }
       } else {
         console.error("Failed to calculate shipping:", data.error)
@@ -351,9 +369,11 @@ export default function Checkout() {
           shipping_province: customerData.province.trim(),
           shipping_province_id: customerData.provinceId ? Number.parseInt(customerData.provinceId) : null,
           shipping_postal_code: customerData.postalCode.trim(),
-          courier: selectedShipping?.courier,
+          // courier: selectedShipping?.courier,
+          courier: selectedShipping?.name,
           service: selectedShipping?.service,
-          estimated_delivery: selectedShipping?.estimatedDelivery,
+          // estimated_delivery: selectedShipping?.estimatedDelivery,
+          estimated_delivery: selectedShipping?.etd,
           payment_method: paymentMethod,
           items: cartItems,
           subtotal,
@@ -809,9 +829,11 @@ export default function Checkout() {
                               />
                               <div>
                                 <div className="font-bold text-ferrow-green-800 text-lg">
-                                  {option.courier} - {option.service}
+                                  {/* {option.courier} - {option.service} */}
+                                  {option.name} - {option.service}
                                 </div>
-                                <div className="text-ferrow-green-700">Estimasi: {option.estimatedDelivery}</div>
+                                {/* <div className="text-ferrow-green-700">Estimasi: {option.estimatedDelivery}</div> */}
+                                <div className="text-ferrow-green-700">Estimasi: {option.etd}</div>
                                 {option.description && (
                                   <div className="text-sm text-ferrow-green-600">{option.description}</div>
                                 )}
@@ -931,7 +953,8 @@ export default function Checkout() {
                             Rp {selectedShipping.cost.toLocaleString("id-ID")}
                           </div>
                           <div className="text-xs text-ferrow-green-600">
-                            {selectedShipping.courier} - {selectedShipping.service}
+                            {/* {selectedShipping.courier} - {selectedShipping.service} */}
+                            {selectedShipping.name} - {selectedShipping.service}
                           </div>
                         </div>
                       ) : (

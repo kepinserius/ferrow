@@ -22,24 +22,40 @@ export async function POST(request: Request) {
     console.log("[v0] Calculating shipping cost:", { origin, destination, weight, courier })
 
     // Use Kommerce shipping cost calculation endpoint
-    const response = await fetch("https://api.kommerce.id/shipping/domestic-cost", {
+    // const response = await fetch("https://api.kommerce.id/shipping/domestic-cost", {
+    //   method: "POST",
+    //   headers: {
+    //     Authorization: `Bearer ${apiKey}`,
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     origin: origin,
+    //     destination: destination,
+    //     weight: weight,
+    //     courier: courier || "jne,tiki,pos", // Default to multiple couriers
+    //   }),
+    // })
+
+    const postData = new URLSearchParams()
+
+    postData.append('origin', origin)
+    postData.append('destination', destination)
+    postData.append('weight', weight)
+    postData.append('courier', 'jnt')
+
+    const response = await fetch("https://rajaongkir.komerce.id/api/v1/calculate/district/domestic-cost", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
+        Key: `${apiKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: JSON.stringify({
-        origin: origin,
-        destination: destination,
-        weight: weight,
-        courier: courier || "jne,tiki,pos", // Default to multiple couriers
-      }),
+      body: postData.toString()
     })
-
+    
     if (!response.ok) {
       throw new Error(`Kommerce API error: ${response.status}`)
     }
-
+    
     const data = await response.json()
     console.log("[v0] Shipping cost response:", data)
 
