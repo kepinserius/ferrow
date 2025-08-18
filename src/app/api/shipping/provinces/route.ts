@@ -8,34 +8,33 @@ export async function GET() {
       return NextResponse.json({ error: "KOMMERCE_API_KEY not configured" }, { status: 500 })
     }
 
-    console.log("[v0] Fetching provinces from Kommerce API...")
-    const response = await fetch("https://api.kommerce.id/shipping/domestic-destination", {
+    console.log("[v0] Fetching provinces from Kommerce RajaOngkir API...")
+
+    const response = await fetch("https://rajaongkir.komerce.id/api/v1/destination/province", {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Key: apiKey,
       },
     })
 
+    const rawText = await response.text()
+    console.log("[v0] Raw response body:", rawText)
+
     if (!response.ok) {
-      console.log("[v0] Kommerce API error:", response.status)
-      throw new Error(`Kommerce API error: ${response.status}`)
+      throw new Error(`Kommerce API error: ${response.status} - ${rawText}`)
     }
 
-    const data = await response.json()
-    console.log("[v0] Kommerce destinations response:", data)
+    const data = JSON.parse(rawText)
 
-    // Extract unique provinces from destinations
-    const provinces =
-      data.destinations?.reduce((acc: any[], dest: any) => {
-        const existing = acc.find((p) => p.province_id === dest.province_id)
-        if (!existing) {
-          acc.push({
-            province_id: dest.province_id,
-            province: dest.province,
-          })
-        }
-        return acc
-      }, []) || []
+    if (!data.data) {
+      console.error("[v0] 'data' field tidak ditemukan di response.")
+      return NextResponse.json({ success: false, error: "Field 'data' tidak ada di response" }, { status: 500 })
+    }
+
+    const provinces = data.data.map((p: any) => ({
+      province_id: p.id,
+      province: p.name,
+    }))
 
     console.log("[v0] Extracted provinces:", provinces.length)
     return NextResponse.json({ success: true, provinces })
