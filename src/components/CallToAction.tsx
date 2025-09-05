@@ -220,16 +220,7 @@ const CallToAction = () => {
                 </motion.button>
               </Link>
               
-              <Link href="/contact">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="btn px-8 py-4 text-lg"
-                  style={{ backgroundColor: '#333A2D', color: '#EFE4C8' }}
-                >
-                  Hubungi Kami
-                </motion.button>
-              </Link>
+
             </motion.div>
           </div>
         </motion.div>

@@ -6,6 +6,7 @@ import Image from "next/image"
 import { FaLeaf, FaHeart, FaShieldAlt, FaPaw, FaStar, FaUsers } from "react-icons/fa"
 import { GiWolfHowl, GiForest, GiMountains } from "react-icons/gi"
 import PawBackground from "./PawBackground"
+import Link from "next/link"
 
 interface PhilosophyFeature {
   icon: React.ReactNode
@@ -21,6 +22,13 @@ const Philosophy = () => {
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+    const scrollToFooter = () => {
+    const footer = document.getElementById("footer")
+    if (footer) {
+      footer.scrollIntoView({ behavior: "smooth" })
+    }
+  }
 
   // Return early loading state if not mounted
   if (!isMounted) {
@@ -502,18 +510,22 @@ const Philosophy = () => {
               Dapatkan edukasi lengkap tentang kandungan produk dan tips perawatan hewan melalui media sosial kami.
               Bersama-sama kita wujudkan kesehatan optimal untuk hewan kesayangan.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+<div className="flex flex-col sm:flex-row gap-4 justify-center">
+  {/* Tombol ke /products */}
+  <Link href="/products">
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className="px-8 py-3 text-white rounded-lg font-semibold transition-colors"
+      style={{ backgroundColor: "#333A2D" }}
+    >
+      Jelajahi Produk
+    </motion.button>
+  </Link>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 text-white rounded-lg font-semibold transition-colors"
-                style={{ backgroundColor: "#333A2D" }}
-              >
-                Jelajahi Produk
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                onClick={scrollToFooter}
                 className="px-8 py-3 bg-white/80 text-ferrow-green-800 rounded-lg font-semibold border-2 border-ferrow-yellow-400/50 hover:border-ferrow-yellow-400 transition-colors"
               >
                 Ikuti Media Sosial

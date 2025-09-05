@@ -250,6 +250,7 @@ const GoatMilkHero = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.7 }}
+              className="relative z-50" //
             >
               <Link href="/products">
                 <motion.button

@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { FaFacebook, FaInstagram, FaTwitter, FaYoutube, FaMapMarkerAlt, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaTwitter, FaYoutube, FaMapMarkerAlt, FaEnvelope, FaPhone, FaTiktok } from 'react-icons/fa';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="bg-[#333A2D] bg-ferrow-green-800 text-ferrow-cream-400 pt-16 pb-8">
+    <footer id="footer" className="bg-[#333A2D] bg-ferrow-green-800 text-ferrow-cream-400 pt-16 pb-8">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
@@ -30,17 +30,14 @@ const Footer = () => {
               Makanan hewan premium berbahan alami, grain-free, terinspirasi dari diet predator liar untuk kesehatan optimal hewan kesayangan Anda.
             </p>
             <div className="flex space-x-4">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-[#F8F8F8] hover:text-ferrow-yellow-400 transition-colors">
+              <a href="https://www.facebook.com/share/1DbEV35cLi/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" className="text-[#F8F8F8] hover:text-ferrow-yellow-400 transition-colors">
                 <FaFacebook size={20} />
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-[#F8F8F8] hover:text-ferrow-yellow-400 transition-colors">
+              <a href="https://www.instagram.com/ferrowpetfood.id/" target="_blank" rel="noopener noreferrer" className="text-[#F8F8F8] hover:text-ferrow-yellow-400 transition-colors">
                 <FaInstagram size={20} />
               </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-[#F8F8F8] hover:text-ferrow-yellow-400 transition-colors">
-                <FaTwitter size={20} />
-              </a>
-              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="text-[#F8F8F8] hover:text-ferrow-yellow-400 transition-colors">
-                <FaYoutube size={20} />
+              <a href="https://www.tiktok.com/@ferrow.petfood?_t=ZS-8zTAZUovEQb&_r=1" target="_blank" rel="noopener noreferrer" className="text-[#F8F8F8] hover:text-ferrow-yellow-400 transition-colors">
+                <FaTiktok size={20} />
               </a>
               </div>
             </div>
